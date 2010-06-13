@@ -1,0 +1,45 @@
+/* http://people.debian.org/~igloo/status.css */
+
+body {
+    color: black;
+    background-color: white;
+}
+
+a:link {
+    color: blue;
+}
+
+a:visited {
+    color: red;
+}
+
+.status a:link {
+    color: inherit;
+}
+
+.status-installed,
+.status-uploaded {
+    background-color: aquamarine;
+}
+
+.status-building,
+.status-notforus,
+.status-depwait,
+.status-needsbuild,
+.status-givenback,
+.status-skipped,
+.status-bduninstallable {
+    color: olive;
+}
+
+.status-failed,
+.status-buildattempted,
+.status-maybefailed {
+    background-color: pink;
+}
+
+.status-maybesuccessful,
+.status-built {
+    color: green;
+}
+
