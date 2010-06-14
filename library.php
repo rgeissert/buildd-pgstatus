@@ -39,6 +39,8 @@ function db_disconnect() {
 }
 
 function string_query($package, $suite) {
+  global $dbconn;
+  $package = pg_escape_string($dbconn, $package);
   $format = "select * from query_source_package('%s', '%s') as
       query_source_package(arch character varying,            package character varying,
                            distribution character varying,    version character varying,
