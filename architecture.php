@@ -38,6 +38,7 @@ if (!empty($buildd)) $query .= " and builder like '$buildd'";
 $query .= " order by state_change asc";
 
 $final = array();
+$finalp = array();
 $counts = array();
 $limit = 500;
 
@@ -76,8 +77,10 @@ while ($info = pg_fetch_assoc($results)) {
       $text .= $info["package"];
     }
     $final[$state][] = $text;
+    $finalp[$state][] = $info["package"];
   } else {
-    $final[$state] = array(); 
+    $final[$state] = array();
+    $finalp[$state] = array();
   }
 }
 
@@ -86,7 +89,12 @@ ksort($final);
 foreach($final as $state => $list) {
   $count = $counts[$state];
   echo "<tr>";
-  echo "<td>$state</td>";
+  $link = $state;
+  if (count($finalp[$state]) > 0) {
+    $packages = implode(",", $finalp[$state]);
+    $link = sprintf("<a href=\"package.php?p=%s\">%s</a>", $packages, $state);
+  }
+  echo "<td>$link</td>";
   echo "<td>$count</td>";
   echo "<td>";
   if ($count < $limit) {
