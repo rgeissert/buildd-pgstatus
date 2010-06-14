@@ -86,8 +86,12 @@ function date_diff_details($lastchange) {
   $rest = $diff - ($days * 3600 * 24);
   $hours = floor($rest / 3600);
   $mins = floor(($rest % 3600) / 60);
-  $date = sprintf("%sd", $days);
-  if ($hours != 0 || $mins != 0) $date .= " $hours:$mins";
+  $date = "";
+  if ($days > 0) $date = sprintf("%sd", $days);
+  if ($hours != 0 || $mins != 0) {
+    if (!empty($date)) $date .= " ";
+    $date .= "${hours}h ${mins}m";
+  }
   return array($days, $date);
 }
 
