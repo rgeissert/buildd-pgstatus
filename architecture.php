@@ -10,9 +10,9 @@ html_header();
 
 $suite = check_suite($_GET["suite"]);
 $package = $_GET["p"];
-$arch = $_GET["a"];
-if (empty($arch)) $arch="alpha";
-$buildd = $_GET["buildd"];
+$arch = check_arch($_GET["a"]);
+$buildd = pg_escape_string($dbconn, $_GET["buildd"]);
+if (ereg('[^a-z0-9_-]', $buildd)) $buildd="";
 $packages = preg_split('/[ ,]+/', $package);
 
 echo "<div style=\"text-align: right\">";
@@ -32,8 +32,10 @@ last build.</p>";
 
 $query =
   "select package, version, state, state_change, builder from \""
-  .$arch."_public\".packages where distribution like '$suite' ";
+  .$arch."_public\".packages where distribution like '$suite'";
 if (!empty($buildd)) $query .= " and builder like '$buildd'";
+
+$query .= " order by state_change asc";
 
 $final = array();
 $counts = array();

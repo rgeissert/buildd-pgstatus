@@ -64,6 +64,15 @@ function check_suite($suite) {
   }
 }
 
+function check_arch($arch) {
+  $archs = explode(" ", ARCHS);
+  if (in_array($arch, $archs)) {
+    return $arch;
+  } else {
+    return $archs[0];
+  }
+}
+
 function select_suite($packages, $selected_suite) {
   $suites = explode(" ", SUITES);
   $package = implode(",", $packages);
