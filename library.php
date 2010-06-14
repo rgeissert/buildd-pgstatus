@@ -423,7 +423,8 @@ function html_footer() {
 <!-- Include here a timestamp, git clone url and the author's name -->
 <small>
 Page generated on $date UTC<br />
-Pages written by Mehdi Dogguy (based on old status pages written by Jeroen van Wolffelaar)<br />
+Pages written by <a href=\"http://wiki.debian.org/MehdiDogguy\">Mehdi Dogguy</a>
+(based on old status pages written by Jeroen van Wolffelaar)<br />
 Pages maintained by the wanna-build team &lt;debian-wb-team@lists.debian.org&gt;<br />
 Download code with git: <tt>git clone http://buildd.debian.org/~mehdi/pgstatus/.git</tt>
 </small>
