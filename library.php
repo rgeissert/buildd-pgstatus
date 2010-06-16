@@ -293,7 +293,7 @@ function buildd_failures($reason, $failures, $subst=false) {
 }
 
 function buildd_status($packages, $suite, $archis="") {
-  global $dbconn , $pendingstate;
+  global $dbconn , $pendingstate , $time;
 
   $print = "single";
   if (count($packages) > 1) {
@@ -358,6 +358,7 @@ function buildd_status($packages, $suite, $archis="") {
         $log = loglink($package, $version, $arch, $timestamp, $count, $last_failed);
       }
 
+      if ($info["state"] == "Installed" && $log == "no log") $info["timestamp"] = $time;
       pkg_history($package, $version, $arch, $suite);
       $print($info, $version, $log, $arch, $suite);
     }
