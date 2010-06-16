@@ -98,7 +98,7 @@ foreach($final as $state => $list) {
   echo "<td>$count</td>";
   echo "<td>";
   if ($count < $limit) {
-    echo implode(" ", $list);
+    echo implode(", ", $list);
   } else {
     echo "<i>Too many results, cannot display</i>";
   }
