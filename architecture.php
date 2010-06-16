@@ -84,7 +84,7 @@ while ($info = pg_fetch_assoc($results)) {
   }
 }
 
-echo "<table border=1 cellpadding=1 cellspacing=1>\n";
+echo "<table border=1 cellpadding=3 cellspacing=0>\n";
 ksort($final);
 foreach($final as $state => $list) {
   $count = $counts[$state];
@@ -94,8 +94,8 @@ foreach($final as $state => $list) {
     $packages = implode(",", $finalp[$state]);
     $link = sprintf("<a href=\"package.php?p=%s\">%s</a>", $packages, $state);
   }
-  echo "<td>$link</td>";
-  echo "<td>$count</td>";
+  echo "<td valign=\"top\">$link</td>";
+  echo "<td valign=\"top\" align=\"center\">$count</td>";
   echo "<td>";
   if ($count < $limit) {
     echo implode(", ", $list);
