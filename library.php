@@ -144,7 +144,7 @@ function buildd_list($arch, $suite) {
   return pg_fetch_all($result);
 }
 
-function loglink($package, $version, $arch, $timestamp, $count) {
+function loglink($package, $version, $arch, $timestamp, $count, $failed) {
   global $pendingstate;
   $log = "";
   $all = sprintf("<a href=\"/build.php?pkg=%s&arch=%s&ver=%s\">all (%d)</a>",
@@ -155,12 +155,16 @@ function loglink($package, $version, $arch, $timestamp, $count) {
                  );
   if (empty($timestamp) || $count == 0)
     $log = "no log";
-  else
-    $log = sprintf("<a href=\"/fetch.cgi?pkg=%s&arch=%s&ver=%s&stamp=%s&file=log&as=raw\">last log</a>",
+  else {
+    $text = "last log";
+    if ($failed) $text = "<font color=red>$text</font>";
+    $log = sprintf("<a href=\"/fetch.cgi?pkg=%s&arch=%s&ver=%s&stamp=%s&file=log&as=raw\">%s</a>",
                    urlencode($package),
                    $arch,
                    urlencode($version),
-                   $timestamp);
+                   $timestamp,
+                   $text);
+  }
   return sprintf("%s | %s", $all, $log);
 }
 
@@ -350,7 +354,8 @@ function buildd_status($packages, $suite, $archis="") {
           if (isset($logs[0]["result"])) $info["state"] = "Maybe-".ucfirst($logs[0]["result"]);
           $info["state_change"] = $logs[0]["date"];
         }
-        $log = loglink($package, $version, $arch, $timestamp, $count);
+        $last_failed = in_array($info["state"], $pendingstate);
+        $log = loglink($package, $version, $arch, $timestamp, $count, $last_failed);
       }
 
       pkg_history($package, $version, $arch, $suite);
