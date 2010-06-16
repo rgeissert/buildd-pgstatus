@@ -32,6 +32,10 @@ a:visited {
     color: olive;
 }
 
+.status-needsbuild {
+    background-color: #eeeedd;
+}
+
 .status-failed,
 .status-buildattempted,
 .status-maybefailed {
