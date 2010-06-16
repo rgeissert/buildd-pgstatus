@@ -341,7 +341,7 @@ function buildd_status($packages, $suite, $archis="") {
       if (is_array($info) && !empty($info["bd_problem"])) $bdproblems[$key] = $info["bd_problem"];
       $version = pkg_version($info["version"], $info["binary_nmu_version"]);
 
-      $log = "";
+      $log = "no log";
       list($count, $logs) = pkg_history($package, $version, $arch, $suite);
       if (is_array($info) && $count >= 1) {
         $timestamp = $logs[0]["timestamp"];
