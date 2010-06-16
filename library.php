@@ -30,7 +30,7 @@ $time = time("now");
 
 function db_connect() {
   global $dbconn;
-  $dbconn = pg_pconnect("service=wanna-build");
+  $dbconn = pg_pconnect("service=wanna-build") or status_fail();
 }
 
 function db_disconnect() {
@@ -420,10 +420,9 @@ function html_header($title="Buildd information pages") {
   db_connect();
 }
 
-function html_footer() {
+function html_footer_text() {
   global $time;
   $date = fdate($time);
-  db_disconnect();
   echo "<hr />
 <!-- Include here a timestamp, git clone url and the author's name -->
 <small>
@@ -435,6 +434,17 @@ Download code with git: <tt>git clone http://buildd.debian.org/~mehdi/pgstatus/.
 </small>
 </body>
 </html>";
+}
+
+function html_footer() {
+  db_disconnect();
+  html_footer_text();
+}
+
+function status_fail() {
+  echo "Connection to the PGdb failed!";
+  html_footer_text();
+  die();
 }
 
 ?>
