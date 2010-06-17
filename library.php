@@ -75,19 +75,32 @@ function check_arch($arch) {
   }
 }
 
-function select_suite($packages, $selected_suite) {
+function good_arch($arch) {
+  return ($arch == check_arch($arch));
+}
+
+function check_archs($archs) {
+  $archs = explode(",", $archs);
+  $archs = array_filter($archs, "good_arch");
+  return array_unique($archs);
+}
+
+function select_suite($packages, $selected_suite, $archs="") {
   $suites = explode(" ", SUITES);
   $package = implode(",", $packages);
+  $archs = implode(",", check_archs($archs));
   printf("<form action=\"package.php\" method=\"get\">\n<p>\nPackage(s): <input type=text length=30 name=p value=\"%s\"> Suite: ",
          $package
          );
-  printf('<select name="suite" id="suite">');
+  printf("<select name=\"suite\" id=\"suite\">\n");
   foreach($suites as $suite) {
     $selected = "";
     if ($suite == $selected_suite) $selected = ' selected="selected"';
-    printf('<option value="%s"%s>%s</option>', $suite, $selected, $suite);
+    printf("\t<option value=\"%s\"%s>%s</option>\n", $suite, $selected, $suite);
   }
-  printf("</select>\n<input type=submit value=Go>\n</form>\n");
+  printf("</select>\n");
+  if (!empty($archs)) printf("<input type=hidden name=a value=\"%s\">\n", $archs);
+  printf("<input type=submit value=Go>\n</form>\n");
 }
 
 function date_diff_details($lastchange) {
@@ -305,10 +318,8 @@ function buildd_status($packages, $suite, $archis="") {
       $suite = "unstable";
   }
 
-  $archs = explode(" ", ARCHS);
-  if (!empty($archis)) {
-    $archs = preg_split('/[ ,]+/', $archis);
-  }
+  $archs = check_archs($archis);
+  if (count($archs) == 0 || $archs[0] == "") $archs = explode(" ", ARCHS);
 
   $failures = array();
   $bdproblems = array();
