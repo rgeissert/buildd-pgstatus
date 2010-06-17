@@ -313,10 +313,7 @@ function buildd_status($packages, $suite, $archis="") {
     $print = "multi";
   }
 
-  $suites = explode(" ", SUITES);
-  if (!in_array($suite, $suites)) {
-      $suite = "unstable";
-  }
+  $suite = check_suite($suite);
 
   $archs = check_archs($archis);
   if (count($archs) == 0 || $archs[0] == "") $archs = explode(" ", ARCHS);

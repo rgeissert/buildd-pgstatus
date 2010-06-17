@@ -4,7 +4,7 @@ require_once("library.php");
 
 html_header();
 
-$suite = check_suite($_GET["suite"]);
+$suite = $_GET["suite"];
 $package = $_GET["p"];
 $archs = $_GET["a"];
 $packages = preg_split('/[ ,]+/', $package);
