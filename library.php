@@ -162,9 +162,9 @@ function loglink($package, $version, $arch, $timestamp, $count, $failed) {
   $log = "";
   $all = sprintf("<a href=\"/build.php?pkg=%s&arch=%s&ver=%s\">all (%d)</a>",
                  urlencode($package),
-                 $arch,
+                 urlencode($arch),
                  urlencode($version),
-                 $count
+                 htmlentities($count)
                  );
   if (empty($timestamp) || $count == 0)
     $log = "no log";
@@ -173,10 +173,10 @@ function loglink($package, $version, $arch, $timestamp, $count, $failed) {
     if ($failed) $text = "<font color=red>$text</font>";
     $log = sprintf("<a href=\"/fetch.cgi?pkg=%s&arch=%s&ver=%s&stamp=%s&file=log&as=raw\">%s</a>",
                    urlencode($package),
-                   $arch,
+                   urlencode($arch),
                    urlencode($version),
-                   $timestamp,
-                   $text);
+                   urlencode($timestamp),
+                   htmlentities($text));
   }
   return sprintf("%s | %s", $all, $log);
 }
@@ -195,9 +195,12 @@ function buildd_name($name) {
 }
 
 function pkg_buildd($buildd, $suite, $arch) {
-  $name = explode("-", $buildd);
-  $name = $name[count($name)-1];
-  return sprintf("<a href=\"architecture.php?a=%s&suite=%s&buildd=%s\">%s</a>", $arch, $suite, $buildd, $name);
+  $name = buildd_name($buildd);
+  return sprintf("<a href=\"architecture.php?a=%s&suite=%s&buildd=%s\">%s</a>",
+                 urlencode($arch),
+                 urlencode($suite),
+                 urlencode($buildd),
+                 htmlentities($name));
 }
 
 function pkg_state($status, $state) {
@@ -221,16 +224,19 @@ function pkg_links($packages, $suite) {
     echo "<p>";
     $links =
       array(
-            sprintf("<a href=\"http://packages.qa.debian.org/%s\">PTS</a>", $package),
-            sprintf("<a href=\"http://packages.debian.org/changelogs/pool/main/%s/%s/current/changelog\">Changelog</a>", $package{0}, $package),
-            sprintf("<a href=\"http://bugs.debian.org/src:%s\">Bugs</a>", $package),
-            sprintf("<a href=\"http://packages.debian.org/source/%s/%s\">packages.d.o</a>", $suite, $package),
+            sprintf("<a href=\"http://packages.qa.debian.org/%s\">PTS</a>", urlencode($package)),
+            sprintf("<a href=\"http://packages.debian.org/changelogs/pool/main/%s/%s/current/changelog\">Changelog</a>",
+                    urlencode($package{0}), urlencode($package)),
+            sprintf("<a href=\"http://bugs.debian.org/src:%s\">Bugs</a>", urlencode($package)),
+            sprintf("<a href=\"http://packages.debian.org/source/%s/%s\">packages.d.o</a>",
+                    urlencode($suite), urlencode($package)),
             );
     echo implode(" &ndash; ", $links);
     echo "</p>\n";
   } else {
+    $packages = array_map("urlencode", $packages);
     $srcs = implode(";src=", $packages);
-    $url = sprintf("http://bugs.debian.org/cgi-bin/pkgreport.cgi?src=%s;dist=%s", $srcs, $suite);
+    $url = sprintf("http://bugs.debian.org/cgi-bin/pkgreport.cgi?src=%s;dist=%s", $srcs, urlencode($suite));
     printf("<p><a href=\"%s\">Bugs</a></p>", $url);
   }
 }
@@ -242,7 +248,8 @@ function arch_link($arch, $sep=false) {
     $bsep = "[";
     $esep = "]";
   }
-  return sprintf(" <a href=\"architecture.php?a=%s\">%s%s%s</a> ", $arch, $bsep, $arch, $esep);
+  return sprintf(" <a href=\"architecture.php?a=%s\">%s%s%s</a> ",
+                 urlencode($arch), $bsep, htmlentities($arch), $esep);
 }
 
 function single($info, $version, $log, $arch, $suite) {
@@ -264,7 +271,7 @@ function single($info, $version, $log, $arch, $suite) {
            $log
            );
   } else {
-    printf("<tr><td colspan=\"8\"><i>No entry in %s database, check <a href=\"https://buildd.debian.org/quinn-diff/%s/Packages-arch-specific\">Packages-arch-specific</a></i></td></tr>\n", $arch, $suite);
+    printf("<tr><td colspan=\"8\"><i>No entry in %s database, check <a href=\"https://buildd.debian.org/quinn-diff/%s/Packages-arch-specific\">Packages-arch-specific</a></i></td></tr>\n", urlencode($arch), urlencode($suite));
   }
 }
 
@@ -325,7 +332,7 @@ function buildd_status($packages, $suite, $archis="") {
 
   foreach ($packages as $package) {
     if (empty($package)) continue;
-    if ($print == "multi") echo "<tr><td><a href=\"package.php?p=$package\">$package</a></td>";
+    if ($print == "multi") printf("<tr><td><a href=\"package.php?p=%s\">%s</a></td>", urlencode($package), htmlentities($package));
 
     $package = pg_escape_string($dbconn, $package);
     $result = pg_query($dbconn, string_query($package, $suite));
@@ -396,7 +403,7 @@ function buildds_overview_link($arch, $suite, $current_buildd="") {
   if (empty($current_buildd))
     echo " [<strong>all</strong>] ";
   else
-    printf(" [<a href=\"architecture.php?a=%s&suite=%s\">all</a>] ", $arch, $suite);
+    printf(" [<a href=\"architecture.php?a=%s&suite=%s\">all</a>] ", urlencode($arch), urlencode($suite));
   if (is_array($list))
     foreach($list as $buildd) {
       $name = $buildd["username"];

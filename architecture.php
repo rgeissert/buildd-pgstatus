@@ -66,7 +66,7 @@ while ($info = pg_fetch_assoc($results)) {
         $duration = "<font color=red>$duration</font>";
       elseif ($days > 7)
         $duration = "<font color=orange>$duration</font>";
-      $link = sprintf("<a href=\"package.php?p=%s&suite=%s\">%s</a>", $info["package"], $suite, $info["package"]);
+      $link = sprintf("<a href=\"package.php?p=%s&suite=%s\">%s</a>", urlencode($info["package"]), $suite, htmlentities($info["package"]));
       $text .= sprintf("%s (%s", $link, $duration);
       if ($count > 1 && $state != "BD-Uninstallable") $text .= ", <strong>tried $count times</strong>";
       if (!empty($info["builder"]))
@@ -91,8 +91,9 @@ foreach($final as $state => $list) {
   echo "<tr>";
   $link = $state;
   if (count($finalp[$state]) > 0) {
-    $packages = implode(",", $finalp[$state]);
-    $link = sprintf("<a href=\"package.php?p=%s\">%s</a>", $packages, $state);
+    $packages = array_map("urlencode", $finalp[$state]);
+    $packages = implode(",", $packages);
+    $link = sprintf("<a href=\"package.php?p=%s\">%s</a>", $packages, htmlentities($state));
   }
   echo "<td valign=\"top\">$link</td>";
   echo "<td valign=\"top\" align=\"center\">$count</td>";
