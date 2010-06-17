@@ -22,10 +22,33 @@ $statehelp = array(
  "Not-For-Us"       => "Package is marked as not-to-be-built on this architecture",
  );
 
+$compactstate = array(
+ "BD-Uninstallable" => "∉",
+ "Build-Attempted"  => "∿",
+ "Building"         => "⚒",
+ "Maybe-Failed"     => "(✘)",
+ "Maybe-Successful" => "(✔)",
+ "Built"            => "☺",
+ "Failed"           => "✘",
+ "Dep-Wait"         => "⌚",
+ "Installed"        => "✔",
+ "Needs-Build"      => "⌂",
+ "Uploaded"         => "♐",
+ "Not-For-Us"       => "⎇",
+ );
+
+$compactarch = array(
+ "hurd-i386" => "hurd",
+ "kfreebsd-amd64" => "kbsd64",
+ "kfreebsd-i386" => "kbsd32",
+ "powerpc" => "ppc"
+ );
+
 $goodstate = array("Maybe-Successful", "Built", "Installed", "Uploaded");
 $pendingstate = array("Building", "Dep-Wait", "Needs-Build");
 
 $dbconn = FALSE;
+$compact = FALSE;
 $time = time("now");
 
 function db_connect() {
@@ -85,7 +108,14 @@ function check_archs($archs) {
   return array_unique($archs);
 }
 
-function select_suite($packages, $selected_suite, $archs="") {
+function arch_name($arch) {
+  global $compact , $compactarch;
+  if ($compact && in_array($arch, array_keys($compactarch)))
+    return $compactarch[$arch];
+  else return $arch;
+}
+
+function select_suite($packages, $selected_suite, $archs="", $compact=false) {
   $suites = explode(" ", SUITES);
   $package = implode(",", $packages);
   $archs = implode(",", check_archs($archs));
@@ -100,6 +130,7 @@ function select_suite($packages, $selected_suite, $archs="") {
   }
   printf("</select>\n");
   if (!empty($archs)) printf("<input type=hidden name=a value=\"%s\">\n", $archs);
+  if ($compact) printf("<input type=hidden name=compact value=\"compact\">\n");
   printf("<input type=submit value=Go>\n</form>\n");
 }
 
@@ -182,11 +213,13 @@ function loglink($package, $version, $arch, $timestamp, $count, $failed) {
 }
 
 function pkg_state_class($state) {
+  global $compact;
   $state = strtolower(implode("", explode("-", $state)));
+  $class = ($compact ? "compact " : "");
   if (!empty($state))
-    return "status-$state";
+    return $class . "status-$state";
   else
-    return "";
+    return $class;
 }
 
 function buildd_name($name) {
@@ -208,6 +241,14 @@ function pkg_state($status, $state) {
     return "";
   else
     return $state;
+}
+
+function pkg_status($status) {
+  global $compact , $compactstate;
+  if ($compact == FALSE)
+    return $status;
+  else
+    return $compactstate[$status];
 }
 
 function pkg_version($version, $binnmu) {
@@ -248,7 +289,7 @@ function arch_link($arch, $sep=false) {
     $esep = "]";
   }
   return sprintf(" <a href=\"architecture.php?a=%s\">%s%s%s</a> ",
-                 urlencode($arch), $bsep, htmlentities($arch), $esep);
+                 urlencode($arch), $bsep, htmlentities(arch_name($arch)), $esep);
 }
 
 function single($info, $version, $log, $arch, $suite) {
@@ -262,7 +303,7 @@ function single($info, $version, $log, $arch, $suite) {
            $version,
            pkg_state_class($info["state"]),
            $statehelp[$info["state"]],
-           $state,
+           pkg_status($state),
            date_diff($info["timestamp"]),
            pkg_buildd($info["builder"], $suite, $arch),
            pkg_state($info["state"], $info["notes"]),
@@ -275,10 +316,11 @@ function single($info, $version, $log, $arch, $suite) {
 }
 
 function multi($info, $version, $log, $arch, $suite) {
+  global $compact;
   if (is_array($info)) {
-    printf("<td class=\"%s\">%s</td>", pkg_state_class($info["state"]), $info["state"]);
+    printf("<td class=\"%s\">%s</td>", pkg_state_class($info["state"]), pkg_status($info["state"]));
   } else {
-    printf("<td><i>not in w-b</i></td>\n");
+    printf("<td><i>%s</i></td>\n", ($compact ? "" : "not in w-b"));
   }
 }
 
@@ -311,13 +353,15 @@ function buildd_failures($reason, $failures, $subst=false) {
   }
 }
 
-function buildd_status($packages, $suite, $archis="") {
-  global $dbconn , $pendingstate , $time;
+function buildd_status($packages, $suite, $archis="", $compact_view=FALSE) {
+  global $dbconn , $pendingstate , $time , $compact;
 
   $print = "single";
   if (count($packages) > 1) {
     $print = "multi";
   }
+
+  $compact = $compact_view;
 
   $suite = check_suite($suite);
 
@@ -426,8 +470,9 @@ function html_header($title="Buildd information pages") {
 <head>
 <title>$title</title>
 
+<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />
+<link rel=\"StyleSheet\" type=\"text/css\" href=\"pkg.css\" />
 <link rel=\"StyleSheet\" type=\"text/css\" href=\"status.css\" />
-<link rel=\"StyleSheet\" type=\"text/css\" href=\"http://buildd.debian.org/pkg.css\" />
 
 </head>
 <body>
