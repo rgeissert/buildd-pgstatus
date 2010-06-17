@@ -52,7 +52,7 @@ function string_query($package, $suite) {
                            binary_nmu_version integer,        binary_nmu_changelog character varying,
                            failed_category character varying, permbuildpri integer,
                            buildpri integer,                  depends character varying,
-                           rel character varying,             bd_problem text)
+                           rel character varying,             bd_problem text, field1 character varying, filed2 character varying)
       order by arch asc";
   return sprintf($format, $suite, $package);
 }
