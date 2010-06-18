@@ -84,7 +84,7 @@ while ($info = pg_fetch_assoc($results)) {
   }
 }
 
-echo "<table border=1 cellpadding=3 cellspacing=0>\n";
+echo "<table class=\"data\">\n";
 ksort($final);
 foreach($final as $state => $list) {
   $count = $counts[$state];
