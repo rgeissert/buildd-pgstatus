@@ -207,7 +207,7 @@ function loglink($package, $version, $arch, $timestamp, $count, $failed) {
                    urlencode($arch),
                    urlencode($version),
                    urlencode($timestamp),
-                   htmlentities($text));
+                   $text);
   }
   return sprintf("%s | %s", $all, $log);
 }
