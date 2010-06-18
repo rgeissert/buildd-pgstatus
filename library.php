@@ -371,6 +371,7 @@ function buildd_status($packages, $suite, $archis="", $compact_view=FALSE) {
   $failures = array();
   $bdproblems = array();
 
+  sort($archs);
   buildd_status_header($print, $archs);
 
   foreach ($packages as $package) {
