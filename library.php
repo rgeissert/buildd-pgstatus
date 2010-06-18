@@ -468,6 +468,7 @@ function buildds_overview_link($arch, $suite, $current_buildd="") {
   if (is_array($list))
     foreach($list as $buildd) {
       $name = $buildd["username"];
+      if ($name == "buildd_${arch}") continue;
       if ($name != $current_buildd)
         $name = pkg_buildd($buildd[username], $suite, $arch);
       else
