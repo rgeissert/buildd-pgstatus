@@ -9,6 +9,10 @@ a:link {
     color: blue;
 }
 
+.tiny {
+    font-size: 50%;
+}
+
 .compact {
     text-align: center;
 }

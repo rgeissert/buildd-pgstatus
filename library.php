@@ -115,10 +115,12 @@ function arch_name($arch) {
   else return $arch;
 }
 
-function select_suite($packages, $selected_suite, $archs="", $compact=false) {
+function select_suite($packages, $selected_suite, $archs="") {
+  global $compact;
   $suites = explode(" ", SUITES);
   $package = implode(",", $packages);
   $archs = implode(",", check_archs($archs));
+  $selected_suite = check_suite($selected_suite);
   printf("<form action=\"package.php\" method=\"get\">\n<p>\nPackage(s): <input type=text length=30 name=p value=\"%s\"> Suite: ",
          $package
          );
@@ -130,8 +132,11 @@ function select_suite($packages, $selected_suite, $archs="", $compact=false) {
   }
   printf("</select>\n");
   if (!empty($archs)) printf("<input type=hidden name=a value=\"%s\">\n", $archs);
-  if ($compact) printf("<input type=hidden name=compact value=\"compact\">\n");
-  printf("<input type=submit value=Go>\n</form>\n");
+  printf("<input type=submit value=Go>\n");
+  printf("<br /><input type=\"checkbox\" name=\"compact\" value=\"compact\" %s /><span class=\"tiny\">Compact mode</span>\n",
+         $compact ? " checked=\"\"" : ""
+         );
+  printf("</form>\n");
 }
 
 function date_diff_details($lastchange) {
@@ -353,15 +358,13 @@ function buildd_failures($reason, $failures, $subst=false) {
   }
 }
 
-function buildd_status($packages, $suite, $archis="", $compact_view=FALSE) {
+function buildd_status($packages, $suite, $archis="") {
   global $dbconn , $pendingstate , $time , $compact;
 
   $print = "single";
   if (count($packages) > 1) {
     $print = "multi";
   }
-
-  $compact = $compact_view;
 
   $suite = check_suite($suite);
 
