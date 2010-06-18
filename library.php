@@ -80,6 +80,18 @@ function string_query($package, $suite) {
   return sprintf($format, $suite, $package);
 }
 
+function print_legend() {
+  global $compact , $compactstate;
+  if ($compact) {
+    echo "<table class=\"data\">\n";
+    echo "<tr><th>Symbol</th><th>State</th></tr>\n";
+    foreach ($compactstate as $state => $symbol) {
+      echo "<tr><td class=\"compact\">$symbol</td><td class=\"".pkg_state_class($state)."\">$state</td></tr>";
+    }
+    echo "</table>\n";
+  }
+}
+
 function check_suite($suite) {
   $suites = explode(" ", SUITES);
   if (in_array($suite, $suites)) {
@@ -432,6 +444,8 @@ function buildd_status($packages, $suite, $archis="") {
 
   buildd_failures("failing reason", $failures, true);
   buildd_failures("dependency installability problem", $bdproblems);
+
+  print_legend();
 }
 
 function archs_overview_links($current_arch="") {
