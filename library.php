@@ -45,6 +45,7 @@ $compactarch = array(
  );
 
 $goodstate = array("Maybe-Successful", "Built", "Installed", "Uploaded");
+$okstate = array("Built", "Installed", "Uploaded");
 $pendingstate = array("Building", "Dep-Wait", "Needs-Build");
 
 $dbconn = FALSE;
@@ -370,8 +371,13 @@ function buildd_failures($reason, $failures, $subst=false) {
   }
 }
 
+function print_jsdiv($mode) {
+  if ($mode != "multi") return;
+  echo "<div id=\"jsmode\"></div>\n";
+}
+
 function buildd_status($packages, $suite, $archis="") {
-  global $dbconn , $pendingstate , $time , $compact;
+  global $dbconn , $pendingstate , $time , $compact , $okstate;
 
   $print = "single";
   if (count($packages) > 1) {
@@ -386,17 +392,19 @@ function buildd_status($packages, $suite, $archis="") {
   $failures = array();
   $bdproblems = array();
 
+  print_jsdiv($print);
+
   sort($archs);
   buildd_status_header($print, $archs);
 
   foreach ($packages as $package) {
     if (empty($package)) continue;
-    if ($print == "multi") printf("<tr><td><a href=\"package.php?p=%s\">%s</a></td>", urlencode($package), htmlentities($package));
 
     $package = pg_escape_string($dbconn, $package);
     $result = pg_query($dbconn, string_query($package, $suite));
 
     $infos = array();
+    $overall_status = TRUE;
 
     while($info = pg_fetch_assoc($result)) {
       $arch = $info["arch"];
@@ -406,11 +414,24 @@ function buildd_status($packages, $suite, $archis="") {
         $info["arch"] = $arch;
         $info["timestamp"] = strtotime($info["state_change"]);
         $infos[$arch] = $info;
+        $overall_status = $overall_status
+          && (   !is_array($info)
+              || $info["notes"] == "uncompiled"
+              || in_array($info["state"], $okstate)
+             );
       }
     }
     foreach($archs as $arch) {
       if (!isset($infos[$arch])) $infos[$arch] = "absent";
     }
+
+    $overall_status_class = $overall_status ? "good" : "bad";
+
+    if ($print == "multi")
+      printf("<tr class=\"%s\"><td><a href=\"package.php?p=%s\">%s</a></td>",
+             $overall_status_class,
+             urlencode($package),
+             htmlentities($package));
 
     ksort($infos);
     foreach($infos as $arch => $info) {
@@ -437,7 +458,7 @@ function buildd_status($packages, $suite, $archis="") {
       $print($info, $version, $log, $arch, $suite);
     }
 
-    if ($print == "multi") echo "</tr>";
+    if ($print == "multi") echo "</tr>\n";
   }
 
   buildd_status_footer($print);
@@ -483,7 +504,7 @@ function page_header($packages, $text="for package(s):") {
   printf("<h1>Buildd status %s%s</h1>\n", $text, $title);
 }
 
-function html_header($title="Buildd information pages") {
+function html_header($js=FALSE, $title="Buildd information pages") {
   echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">
 <html>
 <head>
@@ -492,10 +513,14 @@ function html_header($title="Buildd information pages") {
 <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />
 <link rel=\"StyleSheet\" type=\"text/css\" href=\"pkg.css\" />
 <link rel=\"StyleSheet\" type=\"text/css\" href=\"status.css\" />
-
-</head>
-<body>
 ";
+
+  if ($js) echo "
+<script type=\"text/javascript\" src=\"jquery.js\"></script>
+<script type=\"text/javascript\" src=\"status.js\"></script>
+";
+
+  echo "\n</head>\n<body>\n";
   db_connect();
 }
 

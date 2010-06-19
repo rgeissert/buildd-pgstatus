@@ -2,13 +2,13 @@
 
 require_once("library.php");
 
-html_header();
-
 $suite = $_GET["suite"];
 $package = $_GET["p"];
 $archs = $_GET["a"];
 $compact = !empty($_GET["compact"]);
 $packages = preg_split('/[ ,]+/', $package);
+
+html_header(count($packages) > 1);
 
 page_header($packages);
 if (!empty($package)) pkg_links($packages, $suite);
