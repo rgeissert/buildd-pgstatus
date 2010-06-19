@@ -19,9 +19,9 @@ echo "<div style=\"text-align: right\">";
 select_suite($packages, $suite);
 echo "</div>";
 
-archs_overview_links($arch);
+archs_overview_links($suite, $arch);
 
-page_header(array(), "of $arch");
+page_header(array(), "of $arch ($suite)");
 
 buildds_overview_link($arch, $suite, $buildd);
 
@@ -93,7 +93,7 @@ foreach($final as $state => $list) {
   if (count($finalp[$state]) > 0) {
     $packages = array_map("urlencode", $finalp[$state]);
     $packages = implode(",", $packages);
-    $link = sprintf("<a href=\"package.php?p=%s\">%s</a>", $packages, htmlentities($state));
+    $link = sprintf("<a href=\"package.php?p=%s&suite=%s\">%s</a>", $packages, $suite, htmlentities($state));
   }
   echo "<td valign=\"top\">$link</td>";
   echo "<td valign=\"top\" align=\"center\">$count</td>";

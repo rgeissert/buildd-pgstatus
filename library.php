@@ -299,15 +299,15 @@ function pkg_links($packages, $suite) {
   }
 }
 
-function arch_link($arch, $sep=false) {
+function arch_link($arch, $suite, $sep=false) {
   $bsep = "";
   $esep = "";
   if ($sep) {
     $bsep = "[";
     $esep = "]";
   }
-  return sprintf(" <a href=\"architecture.php?a=%s\">%s%s%s</a> ",
-                 urlencode($arch), $bsep, htmlentities(arch_name($arch)), $esep);
+  return sprintf(" <a href=\"architecture.php?a=%s&suite=%s\">%s%s%s</a> ",
+                 urlencode($arch), $suite, $bsep, htmlentities(arch_name($arch)), $esep);
 }
 
 function single($info, $version, $log, $arch, $suite) {
@@ -317,7 +317,7 @@ function single($info, $version, $log, $arch, $suite) {
     $state .= " (" . $info["depends"] . ")";
   if (is_array($info)) {
     printf("<tr><td>%s</td><td>%s</td><td class=\"status %s\" title=\"%s\">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
-           arch_link($info["arch"]),
+           arch_link($info["arch"], $suite),
            $version,
            pkg_state_class($info["state"]),
            $statehelp[$info["state"]],
@@ -342,7 +342,7 @@ function multi($info, $version, $log, $arch, $suite) {
   }
 }
 
-function buildd_status_header($mode, $archs) {
+function buildd_status_header($mode, $archs, $suite) {
   if ($mode == "single") {
     echo '<table class=data>
 <tr><th>Architecture</th><th>Version</th><th>Status</th><th>For</th><th>Buildd</th><th>State</th><th>Misc</th><th>Logs</th></tr>
@@ -351,7 +351,7 @@ function buildd_status_header($mode, $archs) {
   } else {
     echo "<table class=data><tr><th>Package</th>";
     foreach ($archs as $arch) {
-      printf("<th>%s</th>", arch_link($arch));
+      printf("<th>%s</th>", arch_link($arch, $suite));
     }
     echo "</tr>\n";
   }
@@ -395,7 +395,7 @@ function buildd_status($packages, $suite, $archis="") {
   print_jsdiv($print);
 
   sort($archs);
-  buildd_status_header($print, $archs);
+  buildd_status_header($print, $archs, $suite);
 
   foreach ($packages as $package) {
     if (empty($package)) continue;
@@ -428,9 +428,10 @@ function buildd_status($packages, $suite, $archis="") {
     $overall_status_class = $overall_status ? "good" : "bad";
 
     if ($print == "multi")
-      printf("<tr class=\"%s\"><td><a href=\"package.php?p=%s\">%s</a></td>",
+      printf("<tr class=\"%s\"><td><a href=\"package.php?p=%s&suite=%s\">%s</a></td>",
              $overall_status_class,
              urlencode($package),
+             $suite,
              htmlentities($package));
 
     ksort($infos);
@@ -469,13 +470,13 @@ function buildd_status($packages, $suite, $archis="") {
   print_legend();
 }
 
-function archs_overview_links($current_arch="") {
+function archs_overview_links($suite, $current_arch="") {
   $archs = explode(" ", ARCHS);
   foreach($archs as $arch) {
     if ($arch == $current_arch)
       echo " <strong>[$arch]</strong> ";
     else
-      echo arch_link($arch, true);
+      echo arch_link($arch, $suite, true);
   }
 }
 
