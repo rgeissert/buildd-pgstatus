@@ -333,10 +333,19 @@ function single($info, $version, $log, $arch, $suite) {
   }
 }
 
+function pkg_status_symbol($good) {
+  if ($good)
+    return "✔";
+  else
+    return "✘";
+}
+
 function multi($info, $version, $log, $arch, $suite) {
   global $compact;
   if (is_array($info)) {
-    printf("<td class=\"%s\">%s</td>", pkg_state_class($info["state"]), pkg_status($info["state"]));
+    printf("<td class=\"%s\">%s</td>",
+           pkg_state_class($info["state"]),
+           pkg_status($info["state"]));
   } else {
     printf("<td><i>%s</i></td>\n", ($compact ? "" : "not in w-b"));
   }
@@ -428,10 +437,11 @@ function buildd_status($packages, $suite, $archis="") {
     $overall_status_class = $overall_status ? "good" : "bad";
 
     if ($print == "multi")
-      printf("<tr class=\"%s\"><td><a href=\"package.php?p=%s&suite=%s\">%s</a></td>",
+      printf("<tr class=\"%s\"><td><a href=\"package.php?p=%s&suite=%s\">%s %s</a></td>",
              $overall_status_class,
              urlencode($package),
              $suite,
+             pkg_status_symbol($overall_status),
              htmlentities($package));
 
     ksort($infos);
