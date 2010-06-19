@@ -265,8 +265,10 @@ function pkg_status($status) {
   global $compact , $compactstate;
   if ($compact == FALSE)
     return $status;
-  else
+  else {
+    $status = preg_replace("/ .*$/", "", $status);
     return $compactstate[$status];
+  }
 }
 
 function pkg_version($version, $binnmu) {
