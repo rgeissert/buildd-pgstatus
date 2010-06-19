@@ -9,8 +9,12 @@ a:link {
     color: blue;
 }
 
+#footer {
+    font-size: 75%;
+}
+
 .tiny {
-    font-size: 50%;
+    font-size: 60%;
 }
 
 .compact {
