@@ -21,14 +21,14 @@ function update () {
     } else {
         $(".bad").hide();
     }
-    $("#count").html("("+ $(".bad , .good").filter(":visible").length  +")");
 };
 
 function init () {
     $("#jsmode").append("Filter by status: "
                       + " <input type=\"checkbox\" checked=\"checked\" id=\"good\" />good"
+                      + "<span class=\"tiny\">(" + $(".good").length + ")</span> "
                       + " <input type=\"checkbox\" checked=\"checked\" id=\"bad\" />bad"
-                      + " <span id=\"count\"></span>"
+                      + "<span class=\"tiny\">(" + $(".bad").length + ")</span> "
                  );
     $("#good").click(update);
     $("#bad").click(update);
