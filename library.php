@@ -513,7 +513,9 @@ function buildds_overview_link($arch, $suite, $current_buildd="") {
 
 function page_header($packages, $text="for package(s):") {
   $title = "";
-  if (count($packages) >= 1) $title = " " . implode(", ", $packages);
+  $count = count($packages);
+  if ($count >= 1 && $count < 10) $title = " " . implode(", ", $packages);
+  if ($count >= 10) $text = "for selected packages:";
   printf("<h1>Buildd status %s%s</h1>\n", $text, $title);
 }
 
