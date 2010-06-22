@@ -44,6 +44,20 @@ $compactarch = array(
  "powerpc" => "ppc"
  );
 
+$ignorearchs = array(
+ "experimental" => array("arm"),
+ "unstable" => array("arm"),
+ "testing" => array("alpha", "arm"),
+ "stable" => array("kfreebsd-amd64", "kfreebsd-i386"),
+ "oldstable" => array("kfreebsd-amd64", "kfreebsd-i386"),
+ "etch-volatile" => array("kfreebsd-amd64", "kfreebsd-i386"),
+ "etch-backports" => array("kfreebsd-amd64", "kfreebsd-i386"),
+ "etch-edu" => array("kfreebsd-amd64", "kfreebsd-i386"),
+ "lenny-volatile" => array("kfreebsd-amd64", "kfreebsd-i386"),
+ "lenny-backports" => array("kfreebsd-amd64", "kfreebsd-i386"),
+ "lenny-edu" => array("kfreebsd-amd64", "kfreebsd-i386")
+ );
+
 $goodstate = array("Maybe-Successful", "Built", "Installed", "Uploaded");
 $okstate = array("Built", "Installed", "Uploaded");
 $pendingstate = array("Building", "Dep-Wait", "Needs-Build");
@@ -81,6 +95,14 @@ function string_query($package, $suite) {
   return sprintf($format, $suite, $package);
 }
 
+function ignored_arch($arch, $suite) {
+  global $ignorearchs;
+  if (!empty($suite) && isset($ignorearchs[$suite]))
+    return in_array($arch, $ignorearchs[$suite]);
+  else
+    return false;
+}
+
 function print_legend() {
   global $compact , $compactstate;
   if ($compact) {
@@ -115,9 +137,26 @@ function good_arch($arch) {
   return ($arch == check_arch($arch));
 }
 
+function remove_values($values, $array) {
+  if (!is_array($array) || empty($array)) return $array;
+  foreach ($array as $key => $value) {
+    if (in_array($value, $values)) unset($array[$key]);
+  }
+  return $array;
+}
+
 function check_archs($archs) {
   $archs = explode(",", $archs);
   $archs = array_filter($archs, "good_arch");
+  return array_unique($archs);
+}
+
+function filter_archs($archs, $suite) {
+  global $ignorearchs;
+  $archs = check_archs($archs);
+  if (count($archs) == 0 || $archs[0] == "") $archs = explode(" ", ARCHS);
+  if (!empty($suite) && isset($ignorearchs[$suite]))
+    $archs = remove_values($ignorearchs[$suite], $archs);
   return array_unique($archs);
 }
 
@@ -403,9 +442,7 @@ function buildd_status($packages, $suite, $archis="") {
   }
 
   $suite = check_suite($suite);
-
-  $archs = check_archs($archis);
-  if (count($archs) == 0 || $archs[0] == "") $archs = explode(" ", ARCHS);
+  $archs = filter_archs($archis, $suite);
 
   $failures = array();
   $bdproblems = array();
@@ -435,6 +472,8 @@ function buildd_status($packages, $suite, $archis="") {
         $overall_status = $overall_status
           && (   !is_array($info)
               || $info["notes"] == "uncompiled"
+              || ignored_arch($arch, $suite)
+              || $info["state"] == "Not-For-Us"
               || in_array($info["state"], $okstate)
              );
       }
