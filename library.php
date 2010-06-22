@@ -301,6 +301,12 @@ function pkg_links($packages, $suite) {
   }
 }
 
+function pkg_state_help($state, $notes) {
+  $notes = pkg_state($state, $notes);
+  if (!empty($notes)) $state .= " ($notes)";
+  return $state;
+}
+
 function arch_link($arch, $suite, $sep=false) {
   $bsep = "";
   $esep = "";
@@ -345,8 +351,9 @@ function pkg_status_symbol($good) {
 function multi($info, $version, $log, $arch, $suite) {
   global $compact;
   if (is_array($info)) {
-    printf("<td class=\"%s\">%s</td>",
+    printf("<td class=\"%s\" title=\"%s\">%s</td>",
            pkg_state_class($info["state"]),
+           pkg_state_help($info["state"], $info["notes"]),
            pkg_status($info["state"]));
   } else {
     printf("<td><i>%s</i></td>\n", ($compact ? "" : "not in w-b"));
