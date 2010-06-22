@@ -420,6 +420,7 @@ function buildd_status_footer($mode) {
 
 function buildd_failures($reason, $failures, $subst=false) {
   foreach($failures as $key => $message) {
+    $message = htmlentities($message);
     if ($subst)
       $message = preg_replace('/(#([0-9]{3,6}))/',
                               '<a href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=\2">\1</a>',
