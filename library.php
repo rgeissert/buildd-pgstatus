@@ -47,15 +47,15 @@ $compactarch = array(
 $ignorearchs = array(
  "experimental" => array("arm"),
  "unstable" => array("arm"),
- "testing" => array("alpha", "arm"),
- "stable" => array("kfreebsd-amd64", "kfreebsd-i386"),
- "oldstable" => array("kfreebsd-amd64", "kfreebsd-i386"),
- "etch-volatile" => array("kfreebsd-amd64", "kfreebsd-i386"),
- "etch-backports" => array("kfreebsd-amd64", "kfreebsd-i386"),
- "etch-edu" => array("kfreebsd-amd64", "kfreebsd-i386"),
- "lenny-volatile" => array("kfreebsd-amd64", "kfreebsd-i386"),
- "lenny-backports" => array("kfreebsd-amd64", "kfreebsd-i386"),
- "lenny-edu" => array("kfreebsd-amd64", "kfreebsd-i386")
+ "testing" => array("alpha", "arm", "hurd-i386"),
+ "stable" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386"),
+ "oldstable" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386"),
+ "etch-volatile" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386"),
+ "etch-backports" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386"),
+ "etch-edu" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386"),
+ "lenny-volatile" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386"),
+ "lenny-backports" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386"),
+ "lenny-edu" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386")
  );
 
 $goodstate = array("Maybe-Successful", "Built", "Installed", "Uploaded");
