@@ -173,7 +173,7 @@ function select_suite($packages, $selected_suite, $archs="") {
   $package = implode(",", $packages);
   $archs = implode(",", check_archs($archs));
   $selected_suite = check_suite($selected_suite);
-  printf("<form action=\"package.php\" method=\"get\">\n<p>\nPackage(s): <input type=text length=30 name=p value=\"%s\"> Suite: ",
+  printf("<form action=\"package.php\" method=\"get\">\n<p>\nPackage(s): <input id=pkg_field type=text length=30 name=p value=\"%s\"> Suite: ",
          $package
          );
   printf("<select name=\"suite\" id=\"suite\">\n");
@@ -576,11 +576,17 @@ function html_header($js=FALSE, $title="Buildd information pages") {
 <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />
 <link rel=\"StyleSheet\" type=\"text/css\" href=\"pkg.css\" />
 <link rel=\"StyleSheet\" type=\"text/css\" href=\"status.css\" />
+<script type=\"text/javascript\" src=\"jquery.js\"></script>
 ";
 
   if ($js) echo "
-<script type=\"text/javascript\" src=\"jquery.js\"></script>
 <script type=\"text/javascript\" src=\"status.js\"></script>
+";
+
+  echo "
+<script type=\"text/javascript\">
+$(document).ready(function () { $(\"#pkg_field\").focus() });
+</script>
 ";
 
   echo "\n</head>\n<body>\n";
