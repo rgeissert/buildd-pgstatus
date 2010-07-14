@@ -487,7 +487,7 @@ function buildd_status($packages, $suite, $archis="") {
     $overall_status_class = $overall_status ? "good" : "bad";
 
     if ($print == "multi")
-      printf("<tr class=\"%s\"><td><a href=\"package.php?p=%s&suite=%s\">%s %s</a></td>",
+      printf("<tr class=\"%s\"><td><a href=\"package.php?p=%s&suite=%s\">%s&nbsp;%s</a></td>",
              $overall_status_class,
              urlencode($package),
              $suite,
