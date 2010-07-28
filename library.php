@@ -6,7 +6,7 @@
  */
 
 $ARCHS = array("alpha", "amd64", "arm", "armel", "hppa", "hurd-i386", "i386", "ia64", "kfreebsd-amd64", "kfreebsd-i386", "mips", "mipsel", "powerpc", "s390", "sparc");
-$SUITES = array("oldstable", "stable", "testing", "unstable", "experimental", "etch-volatile", "etch-backports", "etch-edu", "lenny-volatile", "lenny-backports", "lenny-edu");
+$SUITES = array("oldstable", "stable", "testing", "unstable", "experimental");
 
 $statehelp = array(
  "Build-Attempted"  => "A build was attempted, but it failed",
@@ -67,8 +67,11 @@ $compact = FALSE;
 $time = time("now");
 
 function db_connect() {
-  global $dbconn;
+  global $dbconn, $SUITES;
   $dbconn = pg_pconnect("service=wanna-build") or status_fail();
+  $result = pg_query($dbconn, "select * from distributions where public");
+  $SUITES = pg_fetch_all_columns($result, 0);
+  pg_free_result($result);
 }
 
 function db_disconnect() {
