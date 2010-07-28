@@ -231,6 +231,7 @@ function pkg_history($pkg, $ver, $arch, $suite) {
             "result" => $history["result"]
             );
   }
+  pg_free_result($result);
   return array(count($results), $results);
 }
 
@@ -479,6 +480,8 @@ function buildd_status($packages, $suite, $archis="") {
              );
       }
     }
+    pg_free_result($result);
+
     foreach($archs as $arch) {
       if (!isset($infos[$arch])) $infos[$arch] = "absent";
     }
