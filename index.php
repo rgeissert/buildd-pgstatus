@@ -13,10 +13,10 @@ echo "<h2 id=\"subtitle\">Status pages</h2>";
 
 echo "<div id=\"body\">\n";
 
-echo "<h2>Overview of specific pending items on the various autobuilt architectures</h2>";
+echo "<h3>Overview of specific pending items on the various autobuilt architectures</h3>";
 archs_overview_links($suite);
 
-echo "<h2>Information about a specific package/multiple packages</h2>";
+echo "<h3>Information about a specific package/multiple packages</h3>";
 select_suite($packages, $suite);
 
 echo "</div>";
