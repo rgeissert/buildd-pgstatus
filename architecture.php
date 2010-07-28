@@ -23,6 +23,9 @@ echo "<div style=\"text-align: right\">";
 select_suite($packages, $suite);
 echo "</div><br />";
 
+alert_if_neq("suite", $suite, $_GET["suite"]);
+alert_if_neq("architecture", $arch, $_GET["a"]);
+
 archs_overview_links($suite, $arch);
 
 buildds_overview_link($arch, $suite, $buildd);

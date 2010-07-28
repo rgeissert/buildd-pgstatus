@@ -132,7 +132,7 @@ function check_arch($arch) {
   if (in_array($arch, $ARCHS)) {
     return $arch;
   } else {
-    return $archs[0];
+    return $ARCHS[0];
   }
 }
 
@@ -618,6 +618,12 @@ Download code with git: <tt>git clone http://buildd.debian.org/git/pgstatus.git<
 function html_footer() {
   db_disconnect();
   html_footer_text();
+}
+
+function alert_if_neq($kind, $good, $bad) {
+  if ($good != $bad)
+    printf("<div class=\"alert\">Using <i>%s</i> as %s because <i>%s</i> is unknown!</div>",
+       $good, $kind, $bad);
 }
 
 function status_fail() {

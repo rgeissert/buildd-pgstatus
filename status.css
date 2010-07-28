@@ -17,6 +17,10 @@ a:link {
     font-size: 60%;
 }
 
+div.alert {
+    color: red;
+}
+
 .compact {
     text-align: center;
 }
