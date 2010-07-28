@@ -27,10 +27,7 @@ archs_overview_links($suite, $arch);
 
 buildds_overview_link($arch, $suite, $buildd);
 
-echo "<p>The time indicates for how long a package is in the given state. A/B
-means that on A out of B other architectures where the package had a build
-attempt, the build succeeded. the name indicates the build daemon used for
-last build.</p>";
+echo "<p>The time indicates for how long a package is in the given state.</p>";
 
 $query =
   "select package, version, state, state_change, builder from \""
