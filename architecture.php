@@ -15,13 +15,15 @@ $buildd = pg_escape_string($dbconn, $_GET["buildd"]);
 if (ereg('[^a-z0-9_-]', $buildd)) $buildd="";
 $packages = preg_split('/[ ,]+/', $package);
 
+page_header(array(), "of $arch ($suite)");
+
+echo "<div id=\"body\">\n";
+
 echo "<div style=\"text-align: right\">";
 select_suite($packages, $suite);
-echo "</div>";
+echo "</div><br />";
 
 archs_overview_links($suite, $arch);
-
-page_header(array(), "of $arch ($suite)");
 
 buildds_overview_link($arch, $suite, $buildd);
 
@@ -107,6 +109,8 @@ foreach($final as $state => $list) {
   echo "</tr>";
 }
 echo "</table>\n";
+
+echo "</div>";
 
 html_footer();
 

@@ -564,7 +564,8 @@ function page_header($packages, $text="for package(s):") {
   $count = count($packages);
   if ($count >= 1 && $count < 10) $title = " " . implode(", ", $packages);
   if ($count >= 10) $text = "for selected packages:";
-  printf("<h1>Buildd status %s%s</h1>\n", $text, $title);
+  echo "<h1 id=\"title\">Debian Package Auto-Building</h1>\n";
+  printf("<h2 id=\"subtitle\">Buildd status %s%s</h2>\n", $text, $title);
 }
 
 function html_header($js=FALSE, $title="Buildd information pages") {
@@ -574,6 +575,7 @@ function html_header($js=FALSE, $title="Buildd information pages") {
 <title>$title</title>
 
 <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />
+<link type=\"text/css\" rel=\"stylesheet\" href=\"/gfx/revamp.css\" />
 <link rel=\"StyleSheet\" type=\"text/css\" href=\"pkg.css\" />
 <link rel=\"StyleSheet\" type=\"text/css\" href=\"status.css\" />
 <script type=\"text/javascript\" src=\"jquery.js\"></script>
