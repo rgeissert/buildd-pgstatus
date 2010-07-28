@@ -5,8 +5,8 @@
  *
  */
 
-define(ARCHS, "alpha amd64 arm armel hppa hurd-i386 i386 ia64 kfreebsd-amd64 kfreebsd-i386 mips mipsel powerpc s390 sparc");
-define(SUITES, "oldstable stable testing unstable experimental etch-volatile etch-backports etch-edu lenny-volatile lenny-backports lenny-edu");
+$ARCHS = array("alpha", "amd64", "arm", "armel", "hppa", "hurd-i386", "i386", "ia64", "kfreebsd-amd64", "kfreebsd-i386", "mips", "mipsel", "powerpc", "s390", "sparc");
+$SUITES = array("oldstable", "stable", "testing", "unstable", "experimental", "etch-volatile", "etch-backports", "etch-edu", "lenny-volatile", "lenny-backports", "lenny-edu");
 
 $statehelp = array(
  "Build-Attempted"  => "A build was attempted, but it failed",
@@ -116,8 +116,8 @@ function print_legend() {
 }
 
 function check_suite($suite) {
-  $suites = explode(" ", SUITES);
-  if (in_array($suite, $suites)) {
+  global $SUITES;
+  if (in_array($suite, $SUITES)) {
     return $suite;
   } else {
     return "unstable";
@@ -125,8 +125,8 @@ function check_suite($suite) {
 }
 
 function check_arch($arch) {
-  $archs = explode(" ", ARCHS);
-  if (in_array($arch, $archs)) {
+  global $ARCHS;
+  if (in_array($arch, $ARCHS)) {
     return $arch;
   } else {
     return $archs[0];
@@ -151,13 +151,13 @@ function check_archs($archs) {
   return array_unique($archs);
 }
 
-function filter_archs($archs, $suite) {
-  global $ignorearchs;
-  $archs = check_archs($archs);
-  if (count($archs) == 0 || $archs[0] == "") $archs = explode(" ", ARCHS);
+function filter_archs($myarchs, $suite) {
+  global $ignorearchs, $ARCHS;
+  $myarchs = check_archs($myarchs);
+  if (count($myarchs) == 0 || $myarchs[0] == "") $myarchs = $ARCHS;
   if (!empty($suite) && isset($ignorearchs[$suite]))
-    $archs = remove_values($ignorearchs[$suite], $archs);
-  return array_unique($archs);
+    $myarchs = remove_values($ignorearchs[$suite], $myarchs);
+  return array_unique($myarchs);
 }
 
 function arch_name($arch) {
@@ -168,8 +168,7 @@ function arch_name($arch) {
 }
 
 function select_suite($packages, $selected_suite, $archs="") {
-  global $compact;
-  $suites = explode(" ", SUITES);
+  global $compact, $SUITES;
   $package = implode(",", $packages);
   $archs = implode(",", check_archs($archs));
   $selected_suite = check_suite($selected_suite);
@@ -177,7 +176,7 @@ function select_suite($packages, $selected_suite, $archs="") {
          $package
          );
   printf("<select name=\"suite\" id=\"suite\">\n");
-  foreach($suites as $suite) {
+  foreach($SUITES as $suite) {
     $selected = "";
     if ($suite == $selected_suite) $selected = ' selected="selected"';
     printf("\t<option value=\"%s\"%s>%s</option>\n", $suite, $selected, $suite);
@@ -531,8 +530,8 @@ function buildd_status($packages, $suite, $archis="") {
 }
 
 function archs_overview_links($suite, $current_arch="") {
-  $archs = explode(" ", ARCHS);
-  foreach($archs as $arch) {
+  global $ARCHS;
+  foreach($ARCHS as $arch) {
     if ($arch == $current_arch)
       echo " <strong>[$arch]</strong> ";
     else
