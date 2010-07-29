@@ -537,6 +537,7 @@ function archs_overview_links($suite, $current_arch="") {
     else
       echo arch_link($arch, $suite, true);
   }
+  echo "<br />";
 }
 
 function buildds_overview_link($arch, $suite, $current_buildd="") {
@@ -556,6 +557,7 @@ function buildds_overview_link($arch, $suite, $current_buildd="") {
         $name = "<strong>" . buildd_name($name) . "</strong>";
       printf(" [%s] ", $name);
     }
+  echo "<br />";
 }
 
 function page_header($packages, $text="for package(s):") {
