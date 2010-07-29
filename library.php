@@ -457,7 +457,6 @@ function buildd_status($packages, $suite, $archis="") {
   sort($archs);
   buildd_status_header($print, $archs, $suite);
 
-  //sort($packages);
   foreach ($packages as $package) {
     if (empty($package)) continue;
 
