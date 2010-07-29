@@ -344,7 +344,7 @@ function pkg_state_help($state, $notes) {
   return $state;
 }
 
-function arch_link($arch, $suite, $sep=false) {
+function some_link($arch, $suite, $text, $sep) {
   $bsep = "";
   $esep = "";
   if ($sep) {
@@ -352,7 +352,15 @@ function arch_link($arch, $suite, $sep=false) {
     $esep = "]";
   }
   return sprintf(" <a href=\"architecture.php?a=%s&suite=%s\">%s%s%s</a> ",
-                 urlencode($arch), $suite, $bsep, htmlentities(arch_name($arch)), $esep);
+                 urlencode($arch), $suite, $bsep, htmlentities($text), $esep);
+}
+
+function suite_link($arch, $suite, $sep=false) {
+  return some_link($arch, $suite, $suite, $sep);
+}
+
+function arch_link($arch, $suite, $sep=false) {
+  return some_link($arch, $suite, arch_name($arch), $sep);
 }
 
 function single($info, $version, $log, $arch, $suite) {
@@ -529,13 +537,23 @@ function buildd_status($packages, $suite, $archis="") {
   print_legend();
 }
 
-function archs_overview_links($suite, $current_arch="") {
-  global $ARCHS;
-  foreach($ARCHS as $arch) {
+function archs_overview_links($current_suite, $current_arch="") {
+  global $ARCHS, $SUITES;
+  echo "Distributions: ";
+  foreach($SUITES as $suite) {
+    if ($suite == $current_suite)
+      echo " <strong>[$suite]</strong> ";
+   else
+      echo suite_link($current_arch, $suite, true);
+  }
+  echo "<br />";
+  echo "Architectures: ";
+  $archs = $ARCHS;
+  foreach(filter_archs($archs, $current_suite) as $arch) {
     if ($arch == $current_arch)
       echo " <strong>[$arch]</strong> ";
     else
-      echo arch_link($arch, $suite, true);
+      echo arch_link($arch, $current_suite, true);
   }
   echo "<br />";
 }
