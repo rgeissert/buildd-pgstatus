@@ -69,7 +69,8 @@ $time = time("now");
 function db_connect() {
   global $dbconn, $SUITES;
   $dbconn = pg_pconnect("service=wanna-build") or status_fail();
-  $result = pg_query($dbconn, "select * from distributions where public");
+
+  $result = pg_query($dbconn, "select * from distributions where public order by sort_order DESC");
   $SUITES = pg_fetch_all_columns($result, 0);
   pg_free_result($result);
 }
