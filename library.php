@@ -6,7 +6,7 @@
  */
 
 $ARCHS = array("alpha", "amd64", "arm", "armel", "hppa", "hurd-i386", "i386", "ia64", "kfreebsd-amd64", "kfreebsd-i386", "mips", "mipsel", "powerpc", "s390", "sparc");
-$SUITES = array("oldstable", "stable", "testing", "unstable", "experimental");
+$SUITES = array("oldstable", "stable", "testing", "unstable", "experimental"); // Will be fixed later (when pg connection is established)
 
 $statehelp = array(
  "Build-Attempted"  => "A build was attempted, but it failed",
@@ -44,19 +44,7 @@ $compactarch = array(
  "powerpc" => "ppc"
  );
 
-$ignorearchs = array(
- "experimental" => array("arm"),
- "unstable" => array("arm"),
- "testing" => array("alpha", "arm", "hurd-i386"),
- "stable" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386"),
- "oldstable" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386"),
- "etch-volatile" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386"),
- "etch-backports" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386"),
- "etch-edu" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386"),
- "lenny-volatile" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386"),
- "lenny-backports" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386"),
- "lenny-edu" => array("kfreebsd-amd64", "kfreebsd-i386", "hurd-i386")
- );
+$valid_archs = array(); // Will be filled in later.
 
 $goodstate = array("Maybe-Successful", "Built", "Installed", "Uploaded");
 $okstate = array("Built", "Installed", "Uploaded");
@@ -67,11 +55,17 @@ $compact = FALSE;
 $time = time("now");
 
 function db_connect() {
-  global $dbconn, $SUITES;
+  global $dbconn, $SUITES, $valid_archs;
   $dbconn = pg_pconnect("service=wanna-build") or status_fail();
 
   $result = pg_query($dbconn, "select * from distributions where public order by sort_order DESC");
   $SUITES = pg_fetch_all_columns($result, 0);
+  pg_free_result($result);
+
+  $result = pg_query($dbconn, "select * from distribution_architectures");
+  while ($row = pg_fetch_assoc($result)) {
+    $valid_archs[$row["distribution"]][] = $row["architecture"];
+  }
   pg_free_result($result);
 }
 
@@ -100,9 +94,9 @@ function string_query($package, $suite) {
 }
 
 function ignored_arch($arch, $suite) {
-  global $ignorearchs;
-  if (!empty($suite) && isset($ignorearchs[$suite]))
-    return in_array($arch, $ignorearchs[$suite]);
+  global $valid_archs;
+  if (!empty($suite) && isset($valid_archs[$suite]))
+    return !in_array($arch, array_values($valid_archs[$suite]));
   else
     return false;
 }
@@ -144,7 +138,7 @@ function good_arch($arch) {
 function remove_values($values, $array) {
   if (!is_array($array) || empty($array)) return $array;
   foreach ($array as $key => $value) {
-    if (in_array($value, $values)) unset($array[$key]);
+    if (!in_array($value, $values)) unset($array[$key]);
   }
   return $array;
 }
@@ -156,11 +150,11 @@ function check_archs($archs) {
 }
 
 function filter_archs($myarchs, $suite) {
-  global $ignorearchs, $ARCHS;
+  global $valid_archs, $ARCHS;
   $myarchs = check_archs($myarchs);
   if (count($myarchs) == 0 || $myarchs[0] == "") $myarchs = $ARCHS;
-  if (!empty($suite) && isset($ignorearchs[$suite]))
-    $myarchs = remove_values($ignorearchs[$suite], $myarchs);
+  if (!empty($suite) && isset($valid_archs[$suite]))
+    $myarchs = remove_values($valid_archs[$suite], $myarchs);
   return array_unique($myarchs);
 }
 
