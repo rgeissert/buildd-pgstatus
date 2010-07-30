@@ -10,7 +10,8 @@ a:link {
 }
 
 #footer {
-    font-size: 75%;
+    border-top: 2px solid #d70751;
+    padding: 0.5em;
 }
 
 .tiny {

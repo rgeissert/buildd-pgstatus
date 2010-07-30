@@ -617,13 +617,12 @@ $(document).ready(function () { $(\"#pkg_field\").focus() });
 function html_footer_text() {
   global $time;
   $date = fdate($time);
-  echo "<hr />
-<div id=\"footer\">
-Page generated on $date UTC<br />
+  echo "<div id=\"footer\">
+<small>Page generated on $date UTC<br />
 Pages written by <a href=\"http://wiki.debian.org/MehdiDogguy\">Mehdi Dogguy</a>
 (based on old status pages written by Jeroen van Wolffelaar)<br />
 Pages maintained by the wanna-build team &lt;debian-wb-team@lists.debian.org&gt;<br />
-Download code with git: <tt>git clone http://buildd.debian.org/git/pgstatus.git</tt>
+Download code with git: <tt>git clone http://buildd.debian.org/git/pgstatus.git</tt></small>
 </div>
 </body>
 </html>";
