@@ -33,7 +33,7 @@ buildds_overview_link($arch, $suite, $buildd);
 echo "<p>The time indicates for how long a package is in the given state.</p>";
 
 $query =
-  "select package, version, state, state_change, builder from \""
+  "select package, version, state, state_change, section, builder from \""
   .$arch."_public\".packages where distribution like '$suite'";
 if (!empty($buildd)) $query .= " and builder like '$buildd'";
 
@@ -71,6 +71,7 @@ while ($info = pg_fetch_assoc($results)) {
       $link = sprintf("<a href=\"package.php?p=%s&suite=%s\">%s</a>", urlencode($info["package"]), $suite, htmlentities($info["package"]));
       $text .= sprintf("%s (%s", $link, $duration);
       if ($count > 1 && $state != "BD-Uninstallable") $text .= ", <strong>tried $count times</strong>";
+      $text .= default_area($info["section"]);
       if (!empty($info["builder"]))
         $text .= ", " . buildd_name($info["builder"]) . ")";
       else

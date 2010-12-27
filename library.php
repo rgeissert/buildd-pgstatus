@@ -323,6 +323,12 @@ function pkg_area($package) {
   return section_area($section);
 }
 
+function default_area($section) {
+  $area = section_area($section);
+  if (empty($area) || $area == "main") return "";
+  else return ", <i>$area</i>";
+}
+
 function pkg_version($version, $binnmu) {
   if (!empty($binnmu))
     return sprintf("%s+b%s", $version, $binnmu);
