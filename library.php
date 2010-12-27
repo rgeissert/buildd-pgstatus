@@ -308,6 +308,21 @@ function pkg_status($status) {
   }
 }
 
+function section_area($section) {
+  if (preg_match("/^non-free\/.*$/", $section)) return "non-free";
+  else if (preg_match("/^contrib\/.*$/", $section)) return "contrib";
+  else return "main";
+}
+
+function pkg_area($package) {
+  global $dbconn;
+  $query = "SELECT section FROM \"i386_public\".packages WHERE package LIKE '%$package%' LIMIT 1";
+  $result = pg_query($dbconn, $query);
+  $section = pg_fetch_result($result, 0, 0);
+  pg_free_result($result);
+  return section_area($section);
+}
+
 function pkg_version($version, $binnmu) {
   if (!empty($binnmu))
     return sprintf("%s+b%s", $version, $binnmu);
@@ -322,8 +337,8 @@ function pkg_links($packages, $suite) {
     $links =
       array(
             sprintf("<a href=\"http://packages.qa.debian.org/%s\">PTS</a>", urlencode($package)),
-            sprintf("<a href=\"http://packages.debian.org/changelogs/pool/main/%s/%s/current/changelog\">Changelog</a>",
-                    urlencode($package{0}), urlencode($package)),
+            sprintf("<a href=\"http://packages.debian.org/changelogs/pool/%s/%s/%s/current/changelog\">Changelog</a>",
+                    pkg_area($package), urlencode($package{0}), urlencode($package)),
             sprintf("<a href=\"http://bugs.debian.org/src:%s\">Bugs</a>", urlencode($package)),
             sprintf("<a href=\"http://packages.debian.org/source/%s/%s\">packages.d.o</a>",
                     urlencode($suite), urlencode($package)),
