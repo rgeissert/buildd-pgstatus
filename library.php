@@ -74,10 +74,10 @@ function db_disconnect() {
   pg_close($dbconn);
 }
 
-function string_query($package, $suite) {
+function string_query($package, $suite, $fields="*", $extra="") {
   global $dbconn;
   $package = pg_escape_string($dbconn, $package);
-  $format = "select * from query_source_package('%s', '%s') as
+  $format = "select %s from query_source_package('%s', '%s') as
       query_source_package(arch character varying,            package character varying,
                            distribution character varying,    version character varying,
                            state character varying,           section character varying,
@@ -89,8 +89,8 @@ function string_query($package, $suite) {
                            failed_category character varying, permbuildpri integer,
                            buildpri integer,                  depends character varying,
                            rel character varying,             bd_problem text, field1 character varying, filed2 character varying)
-      order by arch asc";
-  return sprintf($format, $suite, $package);
+      order by arch asc %s";
+  return sprintf($format, $fields, $suite, $package, $extra);
 }
 
 function ignored_arch($arch, $suite) {
@@ -316,7 +316,7 @@ function section_area($section) {
 
 function pkg_area($package) {
   global $dbconn;
-  $query = "SELECT section FROM \"i386_public\".packages WHERE package LIKE '%$package%' LIMIT 1";
+  $query = string_query($package, "unstable", "section", "LIMIT 1");
   $result = pg_query($dbconn, $query);
   $section = @pg_fetch_result($result, 0, 0);
   pg_free_result($result);
