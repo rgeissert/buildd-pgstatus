@@ -318,7 +318,7 @@ function pkg_area($package) {
   global $dbconn;
   $query = "SELECT section FROM \"i386_public\".packages WHERE package LIKE '%$package%' LIMIT 1";
   $result = pg_query($dbconn, $query);
-  $section = pg_fetch_result($result, 0, 0);
+  $section = @pg_fetch_result($result, 0, 0);
   pg_free_result($result);
   return section_area($section);
 }
