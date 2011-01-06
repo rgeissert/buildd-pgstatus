@@ -336,7 +336,16 @@ function pkg_version($version, $binnmu) {
     return $version;
 }
 
+function strip_suite ($suite) {
+  $pos = strpos($suite, "-");
+  if ($pos === false)
+    return $suite;
+  else
+    return substr($suite, 0, $pos);
+}
+
 function pkg_links($packages, $suite) {
+  $suite = strip_suite($suite);
   if (count($packages) == 1) {
     $package = $packages[0];
     echo "<p>";
