@@ -3,7 +3,7 @@
 require_once("library.php");
 
 $suite = $_GET["suite"];
-$package = $_GET["p"];
+$package = preg_replace ('/[^-a-z0-9\+\., ]/', '', $_GET["p"]);
 $archs = $_GET["a"];
 $compact = !empty($_GET["compact"]);
 $packages = preg_split('/[ ,]+/', $package);

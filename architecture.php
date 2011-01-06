@@ -9,7 +9,7 @@ function pkg_name($pkg) {
 html_header();
 
 $suite = check_suite($_GET["suite"]);
-$package = $_GET["p"];
+$package = preg_replace ('/[^-a-z0-9\+\., ]/', '', $_GET["p"]);
 $arch = check_arch($_GET["a"]);
 $buildd = pg_escape_string($dbconn, $_GET["buildd"]);
 if (ereg('[^a-z0-9_-]', $buildd)) $buildd="";
