@@ -48,6 +48,7 @@ $valid_archs = array(); // Will be filled in later.
 
 $goodstate = array("Maybe-Successful", "Built", "Installed", "Uploaded");
 $okstate = array("Built", "Installed", "Uploaded");
+$donestate = array("Installed", "Uploaded");
 $pendingstate = array("Building", "Dep-Wait", "Needs-Build");
 
 $dbconn = FALSE;
@@ -282,6 +283,7 @@ function buildd_name($name) {
 }
 
 function pkg_buildd($buildd, $suite, $arch) {
+  if ($buildd == "none") return $buildd;
   $name = buildd_name($buildd);
   return sprintf("<a href=\"architecture.php?a=%s&suite=%s&buildd=%s\">%s</a>",
                  urlencode($arch),
@@ -474,7 +476,7 @@ function print_jsdiv($mode) {
 }
 
 function buildd_status($packages, $suite, $archis="") {
-  global $dbconn , $pendingstate , $time , $compact , $okstate;
+  global $dbconn , $pendingstate , $donestate , $time , $compact , $okstate;
 
   $print = "single";
   if (count($packages) > 1) {
@@ -553,6 +555,9 @@ function buildd_status($packages, $suite, $archis="") {
         $last_failed = in_array($info["state"], $pendingstate);
         $log = loglink($package, $version, $arch, $timestamp, $count, $last_failed);
       }
+
+      // Maintainer/Porter upload
+      if ($log == "no log" && in_array($info["state"], $donestate)) $info["builder"] = "none";
 
       if ($info["state"] == "Installed" && $log == "no log") $info["timestamp"] = $time;
       pkg_history($package, $version, $arch, $suite);
