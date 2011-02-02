@@ -7,6 +7,7 @@
 
 $ARCHS = array("alpha", "amd64", "arm", "armel", "hppa", "hurd-i386", "i386", "ia64", "kfreebsd-amd64", "kfreebsd-i386", "mips", "mipsel", "powerpc", "s390", "sparc");
 $SUITES = array("oldstable", "stable", "testing", "unstable", "experimental"); // Will be fixed later (when pg connection is established)
+$ALIASES = array();
 
 $statehelp = array(
  "Build-Attempted"  => "A build was attempted, but it failed",
@@ -56,11 +57,16 @@ $compact = FALSE;
 $time = time("now");
 
 function db_connect() {
-  global $dbconn, $SUITES, $valid_archs;
+  global $dbconn, $SUITES, $ALIASES, $valid_archs;
   $dbconn = pg_pconnect("service=wanna-build") or status_fail();
 
   $result = pg_query($dbconn, "select * from distributions where public order by sort_order DESC");
   $SUITES = pg_fetch_all_columns($result, 0);
+  pg_free_result($result);
+
+  $result = pg_query($dbconn, "select * from distribution_aliases");
+  while($row = pg_fetch_row($result))
+    $ALIASES[$row[0]] = $row[1];
   pg_free_result($result);
 
   $result = pg_query($dbconn, "select * from distribution_architectures");
@@ -115,9 +121,11 @@ function print_legend() {
 }
 
 function check_suite($suite) {
-  global $SUITES;
+  global $SUITES, $ALIASES;
   if (in_array($suite, $SUITES)) {
     return $suite;
+  } else if (in_array($suite, array_keys($ALIASES))) {
+    return $ALIASES[$suite];
   } else {
     return "unstable";
   }
