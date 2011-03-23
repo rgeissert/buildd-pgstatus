@@ -31,6 +31,8 @@ archs_overview_links($suite, $arch);
 
 buildds_overview_link($arch, $suite, $buildd);
 
+notes_overview_link($arch, $suite, $notes);
+
 echo "<p>The time indicates for how long a package is in the given state.</p>";
 
 $query =

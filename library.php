@@ -625,6 +625,17 @@ function buildds_overview_link($arch, $suite, $current_buildd="") {
   echo "<br />";
 }
 
+function notes_overview_link($arch, $suite, $current_notes="") {
+  echo "Restrict on notes: ";
+  $current_notes = empty($current_notes) ? "all" : $current_notes;
+  foreach(array('all', 'out-of-date', 'uncompiled', 'related') as $note) {
+    $wrap = ($current_notes == $note);
+    $link = sprintf('<a href="architecture.php?a=%s&suite=%s%s">%s</a>', $arch, $suite, ($note != 'all') ? "&notes=$note" : '', $note);
+    printf('[%s%s%s] ', $wrap ? '<strong>' : '', $link, $wrap ? '</strong>' : '');
+  }
+  echo '<br />';
+}
+
 function page_header($packages, $text="for package(s):") {
   $title = "";
   $count = count($packages);
