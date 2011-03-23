@@ -37,7 +37,7 @@ $query =
   "select package, version, state, state_change, section, builder from \""
   .$arch."_public\".packages where distribution like '$suite'";
 if (!empty($buildd)) $query .= " and builder like '$buildd'";
-if (!empty($notes)) $notes .= " and notes like '$notes'";
+if (!empty($notes)) $query .= " and notes like '$notes'";
 
 $query .= " order by state_change asc";
 
