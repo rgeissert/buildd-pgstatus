@@ -12,6 +12,7 @@ $suite = check_suite($_GET["suite"]);
 $package = preg_replace ('/[^-a-z0-9\+\., ]/', '', $_GET["p"]);
 $arch = check_arch($_GET["a"]);
 $buildd = pg_escape_string($dbconn, $_GET["buildd"]);
+$notes = pg_escape_string($dbconn, $_GET["notes"]);
 if (ereg('[^a-z0-9_-]', $buildd)) $buildd="";
 $packages = preg_split('/[ ,]+/', $package);
 
@@ -36,6 +37,7 @@ $query =
   "select package, version, state, state_change, section, builder from \""
   .$arch."_public\".packages where distribution like '$suite'";
 if (!empty($buildd)) $query .= " and builder like '$buildd'";
+if (!empty($notes)) $notes .= " and notes like '$notes'";
 
 $query .= " order by state_change asc";
 
