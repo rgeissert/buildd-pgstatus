@@ -95,7 +95,9 @@ function string_query($package, $suite, $fields="*", $extra="") {
                            binary_nmu_version integer,        binary_nmu_changelog character varying,
                            failed_category character varying, permbuildpri integer,
                            buildpri integer,                  depends character varying,
-                           rel character varying,             bd_problem text, field1 character varying, filed2 character varying)
+                           rel character varying,             bd_problem text,
+                           extra_depends character varying,   extra_conflicts character varying,
+                           build_arch_all boolean)
       order by arch asc %s";
   return sprintf($format, $fields, $suite, $package, $extra);
 }
