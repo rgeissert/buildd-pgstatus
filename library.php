@@ -133,9 +133,14 @@ function check_suite($suite) {
   }
 }
 
+function valid_arch($arch) {
+  global $ARCHS;
+  return in_array($arch, $ARCHS);
+}
+
 function check_arch($arch) {
   global $ARCHS;
-  if (in_array($arch, $ARCHS)) {
+  if (valid_arch($arch)) {
     return $arch;
   } else {
     return $ARCHS[0];
