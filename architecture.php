@@ -67,7 +67,7 @@ while ($info = pg_fetch_assoc($results)) {
       }
     }
     if (!in_array($state, array("Failed-Removed", "Not-For-Us"))) {
-      list($days, $duration) = date_diff_details(strtotime($info["state_change"]));
+      list($days, $duration) = date_diff_details($time, strtotime($info["state_change"]));
       if ($days > 21)
         $duration = "<font color=red>$duration</font>";
       elseif ($days > 7)

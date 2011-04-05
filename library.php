@@ -204,24 +204,23 @@ function select_suite($packages, $selected_suite, $archs="") {
   printf("</form>\n");
 }
 
-function date_diff_details($lastchange) {
-  global $time;
+function date_diff_details($time, $lastchange) {
   $diff = $time - $lastchange;
   $days = floor($diff / (3600 * 24));
   $rest = $diff - ($days * 3600 * 24);
   $hours = floor($rest / 3600);
   $mins = floor(($rest % 3600) / 60);
-  $date = "";
-  if ($days > 0) $date = sprintf("%sd", $days);
-  if ($hours != 0 || $mins != 0) {
-    if (!empty($date)) $date .= " ";
-    $date .= "${hours}h ${mins}m";
-  }
+  $date = array();
+  if ($days > 0) array_push($date, "${days}d");
+  if ($hours > 0) array_push($date, "${hours}h");
+  if ($mins > 0) array_push($date, "${mins}m");
+  $date = implode(" ", $date);
   return array($days, $date);
 }
 
 function date_diff($lastchange) {
-  $result = date_diff_details($lastchange);
+  global $time;
+  $result = date_diff_details($time, $lastchange);
   return $result[1];
 }
 
