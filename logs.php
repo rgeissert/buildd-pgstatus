@@ -43,12 +43,11 @@ $found = false;
 $lastver = "";
 echo '<table class=data><tr>
         <th>Version</th>
-        <th>Log</th>
+        <th>Result</th>
         <th>Architecture</th>
         <th>Build date</th>
         <th>Build time</th>
         <th>Disk space</th>
-        <th>Result</th>
 </tr>';
 while($r = pg_fetch_assoc($query_result)) {
   if (count($arch) == 0) {
@@ -56,14 +55,13 @@ while($r = pg_fetch_assoc($query_result)) {
     if ($r["version"] != $lastver) echo "<tr><td colspan=\"6\">&nbsp;</td></tr>";
   }
 
-  $link = build_log_link($pkg, $r["arch"], $r["version"], strtotime($r["timestamp"]),
-			 "view");
-  $duration = date_diff_details($r["build_time"], 0);
   $result = color_text($r["result"], $r["result"] == "failed");
+  $link = build_log_link($pkg, $r["arch"], $r["version"], strtotime($r["timestamp"]),
+			 $result);
+  $duration = date_diff_details($r["build_time"], 0);
   $disk_space = logsize($r["disk_space"]);
 
   printf("<tr>
-            <td>%s</td>
             <td>%s</td>
             <td>%s</td>
             <td>%s</td>
@@ -80,8 +78,7 @@ while($r = pg_fetch_assoc($query_result)) {
 	 (count($arch) > 0 ? $r["arch"] : logslink($pkg, $ver, $r["arch"], $r["arch"])),
 	 $r["timestamp"],
 	 no_empty_text($duration[1]),
-	 no_empty_text($disk_space),
-	 $result);
+	 no_empty_text($disk_space));
 
   $found = true;
   $lastver = $r["version"];
