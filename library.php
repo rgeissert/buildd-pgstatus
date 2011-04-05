@@ -129,7 +129,7 @@ function check_suite($suite) {
   } else if (in_array($suite, array_keys($ALIASES))) {
     return $ALIASES[$suite];
   } else {
-    return "unstable";
+    return "sid";
   }
 }
 
