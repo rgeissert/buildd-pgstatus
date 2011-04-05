@@ -12,6 +12,11 @@ a:hover {
     text-decoration: underline;
 }
 
+ul.logs {
+    list-style-type:disc;
+    padding-left: 1em;
+}
+
 /* data table */
 
 .data {
