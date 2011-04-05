@@ -55,7 +55,7 @@ while($r = pg_fetch_assoc($query_result)) {
     if ($r["version"] != $lastver) echo "<tr><td colspan=\"6\">&nbsp;</td></tr>";
   }
 
-  $result = color_text($r["result"], $r["result"] == "failed");
+  $result = color_text("Maybe-".ucwords($r["result"]), $r["result"] == "failed");
   $link = build_log_link($pkg, $r["arch"], $r["version"], strtotime($r["timestamp"]),
 			 $result);
   $duration = date_diff_details($r["build_time"], 0);
