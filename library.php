@@ -102,6 +102,25 @@ function string_query($package, $suite, $fields="*", $extra="") {
   return sprintf($format, $fields, $suite, $package, $extra);
 }
 
+function log_query_arch($pkg, $arch, $ver="") {
+  return sprintf("SELECT '%s'::character varying AS arch, *
+                  FROM \"%s_public\".pkg_history
+                  WHERE package LIKE '%s'
+                  %s",
+		 $arch, $arch, $pkg, $ver);
+}
+
+function log_query($pkg, $archs, $ver) {
+  global $ARCHS;
+  if (empty($archs)) $archs = $ARCHS;
+  if (!empty($ver)) $ver = sprintf(" AND version LIKE '%s'", $ver);
+  $query = log_query_arch($pkg, array_shift($archs), $ver);
+  foreach($archs as $arch) {
+    $query .= sprintf(" UNION %s", log_query_arch($pkg, $arch, $ver));
+  }
+  return sprintf("%s ORDER BY version DESC", $query);
+}
+
 function ignored_arch($arch, $suite) {
   global $valid_archs;
   if (!empty($suite) && isset($valid_archs[$suite]))
@@ -179,6 +198,13 @@ function arch_name($arch) {
   if ($compact && in_array($arch, array_keys($compactarch)))
     return $compactarch[$arch];
   else return $arch;
+}
+
+function select_logs($package) {
+  echo "<form action=\"logs.php\" method=\"get\">\n<p>\n";
+  echo "Package: <input id=pkg_field type=text length=30 name=pkg value=\"$package\">";
+  printf("<input type=submit value=Go>\n");
+  echo "</p>\n</form>\n";
 }
 
 function select_suite($packages, $selected_suite, $archs="") {
@@ -291,7 +317,11 @@ function logsize($size) {
 function loglink($package, $version, $arch, $timestamp, $count, $failed) {
   global $pendingstate;
   $log = "";
-  $all = sprintf("<a href=\"/build.php?pkg=%s&arch=%s&ver=%s\">all (%d)</a>",
+  $old = sprintf("<a href=\"logs.php?pkg=%s&arch=%s\">old</a>",
+                 urlencode($package),
+                 urlencode($arch)
+                 );
+  $all = sprintf("<a href=\"logs.php?pkg=%s&arch=%s&ver=%s\">all (%d)</a>",
                  urlencode($package),
                  urlencode($arch),
                  urlencode($version),
@@ -302,14 +332,18 @@ function loglink($package, $version, $arch, $timestamp, $count, $failed) {
   else {
     $text = "last log";
     if ($failed) $text = "<font color=red>$text</font>";
-    $log = sprintf("<a href=\"/fetch.cgi?pkg=%s&arch=%s&ver=%s&stamp=%s&file=log&as=raw\">%s</a>",
+    $log = build_log_link($package, $arch, $version, $timestamp, $text);
+  }
+  return sprintf("%s | %s | %s", $old, $all, $log);
+}
+
+function build_log_link($package, $arch, $version, $timestamp, $text) {
+    return sprintf("<a href=\"/fetch.cgi?pkg=%s&arch=%s&ver=%s&stamp=%s&file=log&as=raw\">%s</a>",
                    urlencode($package),
                    urlencode($arch),
                    urlencode($version),
                    urlencode($timestamp),
                    $text);
-  }
-  return sprintf("%s | %s", $all, $log);
 }
 
 function pkg_state_class($state) {
@@ -481,10 +515,10 @@ function multi($info, $version, $log, $arch, $suite) {
   }
 }
 
-function buildd_status_header($mode, $archs, $suite) {
+function buildd_status_header($mode, $archs, $package, $suite) {
   if ($mode == "single") {
     echo '<table class=data>
-<tr><th>Architecture</th><th>Version</th><th>Status</th><th>For</th><th>Buildd</th><th>State</th><th>Misc</th><th>Logs</th></tr>
+<tr><th>Architecture</th><th>Version</th><th>Status</th><th>For</th><th>Buildd</th><th>State</th><th>Misc</th><th><a href="logs.php?pkg='.$package.'">Logs</a></th></tr>
 ';
     echo "\n";
   } else {
@@ -537,7 +571,7 @@ function buildd_status($packages, $suite, $archis="") {
   print_jsdiv($print);
 
   sort($archs);
-  buildd_status_header($print, $archs, $suite);
+  buildd_status_header($print, $archs, $packages[0], $suite);
 
   foreach ($packages as $package) {
     if (empty($package)) continue;
