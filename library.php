@@ -258,6 +258,36 @@ function buildd_list($arch, $suite) {
   return pg_fetch_all($result);
 }
 
+function color_text($text, $failed) {
+  if ($failed)
+    return "<font color=red>$text</font>";
+  else
+    return "<font color=green>$text</font>";
+}
+
+function no_empty_text($text, $suffix="") {
+  if (empty($text))
+    return "—";
+  else
+    return $text.$suffix;
+}
+
+function logsize($size) {
+  if (empty($size)) return $size;
+  $sep = ' ';
+  $unit = null;
+  $units = array('B', 'KB', 'MB', 'GB', 'TB');
+  for($i = 0, $c = count($units); $i < $c; $i++) {
+    if ($size > 1024) {
+      $size = $size / 1024;
+    } else {
+      $unit = $units[$i];
+      break;
+    }
+  }
+  return round($size, 2).$sep.$unit;
+}
+
 function loglink($package, $version, $arch, $timestamp, $count, $failed) {
   global $pendingstate;
   $log = "";
