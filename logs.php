@@ -70,7 +70,11 @@ while($r = pg_fetch_assoc($query_result)) {
             <td>%s</td>
          </tr>\n",
 	 (!$found || $r["version"] != $lastver ?
-            logs_link($pkg, $arch[0], $r["version"], $r["version"])
+	   ($r["version"] != $ver ?
+	     logs_link($pkg, $arch[0], $r["version"], $r["version"])
+	    :
+	     $r["version"]
+	    )
 	  :
 	    "—"
 	 ),
