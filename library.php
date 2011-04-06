@@ -345,12 +345,21 @@ function loglink($package, $version, $arch, $timestamp, $count, $failed) {
 }
 
 function build_log_link($package, $arch, $version, $timestamp, $text) {
-    return sprintf("<a href=\"/fetch.cgi?pkg=%s&arch=%s&ver=%s&stamp=%s&file=log&as=raw\">%s</a>",
+    return sprintf("<a href=\"fetch.php?pkg=%s&arch=%s&ver=%s&stamp=%s\">%s</a>",
                    urlencode($package),
                    urlencode($arch),
                    urlencode($version),
                    urlencode($timestamp),
                    $text);
+}
+
+function logpath($pkg, $ver, $arch, $stamp) {
+  return sprintf("/srv/buildd.debian.org/db/%s/%s/%s/%s_%s_log.bz2",
+		 $pkg[0],
+		 $pkg,
+		 $ver,
+		 $arch,
+		 $stamp);
 }
 
 function pkg_state_class($state) {
