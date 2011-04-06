@@ -27,8 +27,8 @@ if (!file_exists($path)) {
 
     printf("%s → %s → %s → %s\n",
 	    sprintf("<a href=\"package.php?p=%s\">%s</a>", $pkg, $pkg),
-	    oldloglink($pkg, "", $ver, $ver),
-	    oldloglink($pkg, $arch, $ver, $arch),
+	    logs_link($pkg, "", $ver, $ver),
+	    logs_link($pkg, $arch, $ver, $arch),
 	    fdate($stamp)
 	    );
 

@@ -314,12 +314,13 @@ function logsize($size) {
   return round($size, 2).$sep.$unit;
 }
 
-function oldloglink($package, $arch, $ver="", $text="old") {
+function logs_link($pkg, $arch, $ver="", $text="old") {
   if (!empty($ver)) $ver = sprintf("&ver=%s", urlencode($ver));
-  return sprintf("<a href=\"logs.php?pkg=%s&arch=%s%s\">%s</a>",
-		 urlencode($package),
-		 urlencode($arch),
+  if (!empty($arch)) $arch = sprintf("&arch=%s", urlencode($arch));
+  return sprintf("<a href=\"logs.php?pkg=%s%s%s\">%s</a>",
+		 urlencode($pkg),
 		 $ver,
+		 $arch,
 		 $text
 		 );
 }
@@ -327,7 +328,7 @@ function oldloglink($package, $arch, $ver="", $text="old") {
 function loglink($package, $version, $arch, $timestamp, $count, $failed) {
   global $pendingstate;
   $log = "";
-  $old = oldloglink($package, $arch);
+  $old = logs_link($package, $arch);
   $all = sprintf("<a href=\"logs.php?pkg=%s&arch=%s&ver=%s\">all (%d)</a>",
                  urlencode($package),
                  urlencode($arch),
@@ -656,7 +657,7 @@ function buildd_status($packages, $suite, $archis="") {
 
       if ($info["state"] == "Installed" && $log == "no log") $info["timestamp"] = $time;
       pkg_history($package, $version, $arch, $suite);
-      if ($log == "no log") $log = sprintf("%s | %s", oldloglink($package, $arch), $log);
+      if ($log == "no log") $log = sprintf("%s | %s", logs_link($package, $arch), $log);
       $print($info, $version, $log, $arch, $suite);
     }
 

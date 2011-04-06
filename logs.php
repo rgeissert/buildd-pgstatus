@@ -13,15 +13,6 @@ if (!valid_arch($arch)) { $arch = array(); } else { $arch = array($arch); }
 if (!preg_match('/^[[:alnum:].+-:~]+$/', $ver)) $ver = "";
 if (!preg_match('/^[0-9]+$/', $stamp)) $stamp = "";
 
-function logslink($pkg, $ver, $arch, $text) {
-  return sprintf("<a href=\"logs.php?pkg=%s&ver=%s&arch=%s\">%s</a>",
-		 urlencode($pkg),
-		 urlencode($ver),
-		 urlencode($arch),
-		 $text
-		 );
-}
-
 page_header(array($pkg), "Build logs for ");
 
 echo "<div id=\"body\">\n";
@@ -34,11 +25,11 @@ pkg_links(array($pkg), "sid");
 printf("<h3>Buildd logs for <a href=\"package.php?p=%s\">%s</a>", $pkg, $pkg);
 if (!empty($ver)) {
   echo "_$ver";
-  printf(" <small>[%s]</small>", logslink($pkg, "", $arch[0], "X"));
+  printf(" <small>[%s]</small>", logs_link($pkg, $arch[0], "", "X"));
  }
 if (!empty($arch)) {
   printf(" on <a href=\"architecture.php?a=%s\">%s</a>", $arch[0], $arch[0]);
-  printf(" <small>[%s]</small>", logslink($pkg, $ver, "", "X"));
+  printf(" <small>[%s]</small>", logs_link($pkg, "", $ver, "X"));
  }
 echo "</h3>\n";
 
@@ -75,12 +66,12 @@ while($r = pg_fetch_assoc($query_result)) {
             <td>%s</td>
          </tr>\n",
 	 (!$found || $r["version"] != $lastver ?
-            logslink($pkg, $r["version"], $arch[0], $r["version"])
+            logs_link($pkg, $arch[0], $r["version"], $r["version"])
 	  :
 	    "—"
 	 ),
 	 $link,
-	 (count($arch) > 0 ? $r["arch"] : logslink($pkg, $ver, $r["arch"], $r["arch"])),
+	 (count($arch) > 0 ? $r["arch"] : logs_link($pkg, $r["arch"], $ver, $r["arch"])),
 	 $r["timestamp"],
 	 no_empty_text($duration[1]),
 	 no_empty_text($disk_space));
