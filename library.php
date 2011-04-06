@@ -726,12 +726,14 @@ function notes_overview_link($arch, $suite, $current_notes="") {
   echo '<br />';
 }
 
-function page_title($packages, $text="Buildd status for package(s):") {
+function page_title($packages, $text="Buildd status for ") {
   $pkgs = "";
   $count = count($packages);
   if ($count >= 1 && $count < 10) $pkgs = " " . implode(", ", $packages);
-  if ($count >= 10) $text = "for selected packages:";
-  return sprintf("%s%s", $text, $pkgs);
+  if ($count >= 10)
+    return sprintf("%s selected packages", $text);
+  else
+    return sprintf("%s%s", $text, $pkgs);
 }
 
 function html_header($subtitle="Buildd information pages", $js=false) {
