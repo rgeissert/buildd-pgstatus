@@ -22,8 +22,7 @@ function logslink($pkg, $ver, $arch, $text) {
 		 );
 }
 
-echo "<h1 id=\"title\">Debian Package Auto-Building</h1>\n";
-printf("<h2 id=\"subtitle\">Buildd logs for %s</h2>\n", $pkg);
+page_header(array($pkg), "Build logs for ");
 
 echo "<div id=\"body\">\n";
 

@@ -714,13 +714,13 @@ function notes_overview_link($arch, $suite, $current_notes="") {
   echo '<br />';
 }
 
-function page_header($packages, $text="for package(s):") {
-  $title = "";
+function page_header($packages, $text="Buildd status for package(s):") {
+  $pkgs = "";
   $count = count($packages);
-  if ($count >= 1 && $count < 10) $title = " " . implode(", ", $packages);
+  if ($count >= 1 && $count < 10) $pkgs = " " . implode(", ", $packages);
   if ($count >= 10) $text = "for selected packages:";
   echo "<h1 id=\"title\">Debian Package Auto-Building</h1>\n";
-  printf("<h2 id=\"subtitle\">Buildd status %s%s</h2>\n", $text, $title);
+  printf("<h2 id=\"subtitle\">%s%s</h2>\n", $text, $pkgs);
 }
 
 function html_header($js=FALSE, $title="Buildd information pages") {

@@ -16,7 +16,7 @@ $notes = pg_escape_string($dbconn, $_GET["notes"]);
 if (ereg('[^a-z0-9_-]', $buildd)) $buildd="";
 $packages = preg_split('/[ ,]+/', $package);
 
-page_header(array(), "of $arch ($suite)");
+page_header(array(), "Buildd status of $arch ($suite)");
 
 echo "<div id=\"body\">\n";
 
