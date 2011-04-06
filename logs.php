@@ -26,6 +26,11 @@ echo "<h1 id=\"title\">Debian Package Auto-Building</h1>\n";
 printf("<h2 id=\"subtitle\">Buildd logs for %s</h2>\n", $pkg);
 
 echo "<div id=\"body\">\n";
+
+echo "<div style=\"float:right\">";
+select_logs($package);
+echo "</div>";
+
 pkg_links(array($pkg), "sid");
 printf("<h3>Buildd logs for <a href=\"package.php?p=%s\">%s</a>", $pkg, $pkg);
 if (!empty($ver)) {
