@@ -496,6 +496,7 @@ function single($info, $version, $log, $arch, $suite) {
   if ($state == "Dep-Wait" && !empty($info["depends"]))
     $state .= " (" . $info["depends"] . ")";
   if (is_array($info)) {
+    $misc = sprintf("%s:%s", $info["section"], $info["priority"]);
     printf("<tr><td>%s</td><td>%s</td><td class=\"status %s\" title=\"%s\">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
            arch_link($info["arch"], $suite),
            $version,
@@ -505,7 +506,7 @@ function single($info, $version, $log, $arch, $suite) {
            date_diff($info["timestamp"]),
            pkg_buildd($info["builder"], $suite, $arch),
            pkg_state($info["state"], $info["notes"]),
-           sprintf("%s:%s", $info["section"], $info["priority"]),
+	   ($misc == ":" ? "—" : $misc),
            $log
            );
   } else {
