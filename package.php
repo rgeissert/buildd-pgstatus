@@ -1,17 +1,15 @@
 <?
 
 require_once("library.php");
+db_connect();
 
 $package = preg_replace ('/[^-a-z0-9\+\., ]/', '', $_GET["p"]);
 $packages = preg_split('/[ ,]+/', $package);
-
-html_header(count($packages) > 1);
-
 $suite = check_suite($_GET["suite"]);
 $archs = $_GET["a"];
 $compact = !empty($_GET["compact"]);
 
-page_header($packages);
+html_header(page_title($packages), count($packages) > 1);
 
 echo "<div id=\"body\">\n";
 

@@ -1,8 +1,7 @@
 <?
 
 require_once("library.php");
-
-html_header(false);
+db_connect();
 
 $pkg = preg_replace ('/[^-a-z0-9\+\., ]/', '', $_GET["pkg"]);
 $suite = check_suite($_GET["suite"]);
@@ -13,7 +12,12 @@ if (!valid_arch($arch)) { $arch = array(); } else { $arch = array($arch); }
 if (!preg_match('/^[[:alnum:].+-:~]+$/', $ver)) $ver = "";
 if (!preg_match('/^[0-9]+$/', $stamp)) $stamp = "";
 
-page_header(array($pkg), "Build logs for ");
+html_header(sprintf("Build logs for %s%s%s",
+		    $pkg,
+		    ( empty($ver) ? "" : "_$ver" ),
+		    ( empty($arch) ? "" : " on ".$arch[0] )
+		    )
+	    );
 
 echo "<div id=\"body\">\n";
 

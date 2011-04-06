@@ -1,15 +1,13 @@
 <?
 
 require_once("library.php");
-
-html_header();
+db_connect();
 
 $suite = check_suite($_GET["suite"]);
 $package = $_GET["p"];
 $packages = preg_split('/[ ,]+/', $package);
 
-echo "<h1 id=\"title\">Debian Package Auto-Building</h1>";
-echo "<h2 id=\"subtitle\">Status pages</h2>";
+html_header();
 
 echo "<div id=\"body\">\n";
 

@@ -1,12 +1,11 @@
 <?
 
 require_once("library.php");
+db_connect();
 
 function pkg_name($pkg) {
   return $pkg["name"];
 }
-
-html_header();
 
 $suite = check_suite($_GET["suite"]);
 $package = preg_replace ('/[^-a-z0-9\+\., ]/', '', $_GET["p"]);
@@ -16,7 +15,7 @@ $notes = pg_escape_string($dbconn, $_GET["notes"]);
 if (ereg('[^a-z0-9_-]', $buildd)) $buildd="";
 $packages = preg_split('/[ ,]+/', $package);
 
-page_header(array(), "Buildd status of $arch ($suite)");
+html_header("Buildd status of $arch ($suite)");
 
 echo "<div id=\"body\">\n";
 

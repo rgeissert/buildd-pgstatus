@@ -724,20 +724,20 @@ function notes_overview_link($arch, $suite, $current_notes="") {
   echo '<br />';
 }
 
-function page_header($packages, $text="Buildd status for package(s):") {
+function page_title($packages, $text="Buildd status for package(s):") {
   $pkgs = "";
   $count = count($packages);
   if ($count >= 1 && $count < 10) $pkgs = " " . implode(", ", $packages);
   if ($count >= 10) $text = "for selected packages:";
-  echo "<h1 id=\"title\">Debian Package Auto-Building</h1>\n";
-  printf("<h2 id=\"subtitle\">%s%s</h2>\n", $text, $pkgs);
+  return sprintf("%s%s", $text, $pkgs);
 }
 
-function html_header($js=FALSE, $title="Buildd information pages") {
+function html_header($subtitle="Buildd information pages", $js=false) {
+
   echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">
 <html>
 <head>
-<title>$title</title>
+<title>$subtitle</title>
 
 <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />
 <link type=\"text/css\" rel=\"stylesheet\" href=\"/gfx/revamp.css\" />
@@ -757,7 +757,8 @@ $(document).ready(function () { $(\"#pkg_field\").focus() });
 ";
 
   echo "\n</head>\n<body>\n";
-  db_connect();
+  echo "<h1 id=\"title\">Debian Package Auto-Building</h1>\n";
+  echo "<h2 id=\"subtitle\">$subtitle</h2>\n";
 }
 
 function html_footer_text() {
