@@ -12,7 +12,7 @@ html_header();
 echo "<div id=\"body\">\n";
 
 echo "<h3>Overview of specific pending items on the various autobuilt architectures</h3>";
-archs_overview_links($suite);
+archs_overview_links($suite, "", false);
 
 echo "<h3>Information about a specific package/multiple packages</h3>";
 select_suite($packages, $suite);

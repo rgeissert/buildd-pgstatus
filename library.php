@@ -672,16 +672,18 @@ function buildd_status($packages, $suite, $archis="") {
   print_legend();
 }
 
-function archs_overview_links($current_suite, $current_arch="") {
+function archs_overview_links($current_suite, $current_arch="", $show_dists=true) {
   global $ARCHS, $SUITES;
-  echo "Distributions: ";
-  foreach($SUITES as $suite) {
-    if ($suite == $current_suite)
-      echo " <strong>[$suite]</strong> ";
-   else
-      echo suite_link($current_arch, $suite, true);
+  if ($show_dists) {
+    echo "Distributions: ";
+    foreach($SUITES as $suite) {
+      if ($suite == $current_suite)
+	echo " <strong>[$suite]</strong> ";
+      else
+	echo suite_link($current_arch, $suite, true);
+    }
+    echo "<br />";
   }
-  echo "<br />";
   echo "Architectures: ";
   $archs = $ARCHS;
   foreach(filter_archs($archs, $current_suite) as $arch) {
