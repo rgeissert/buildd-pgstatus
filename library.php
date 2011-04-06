@@ -431,11 +431,11 @@ function strip_suite ($suite) {
     return substr($suite, 0, $pos);
 }
 
-function pkg_links($packages, $suite) {
+function pkg_links($packages, $suite, $p=true) {
   $suite = strip_suite($suite);
   if (count($packages) == 1) {
     $package = $packages[0];
-    echo "<p>";
+    if ($p) echo "<p>";
     $links =
       array(
             sprintf("<a href=\"http://packages.qa.debian.org/%s\">PTS</a>", urlencode($package)),
@@ -446,7 +446,7 @@ function pkg_links($packages, $suite) {
                     urlencode($suite), urlencode($package)),
             );
     echo implode(" &ndash; ", $links);
-    echo "</p>\n";
+    if ($p) echo "</p>\n";
   } else {
     $packages = array_map("urlencode", $packages);
     $srcs = implode(";src=", $packages);
