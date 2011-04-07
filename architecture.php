@@ -7,13 +7,8 @@ function pkg_name($pkg) {
   return $pkg["name"];
 }
 
-$suite = check_suite($_GET["suite"]);
-$package = preg_replace ('/[^-a-z0-9\+\., ]/', '', $_GET["p"]);
-$arch = check_arch($_GET["a"]);
-$buildd = pg_escape_string($dbconn, $_GET["buildd"]);
-$notes = pg_escape_string($dbconn, $_GET["notes"]);
-if (ereg('[^a-z0-9_-]', $buildd)) $buildd="";
-$packages = preg_split('/[ ,]+/', $package);
+list($packages, $suite, $arch, $buildd, $notes) =
+  sanitize_params("packages", "suite", "a", "buildd", "notes");
 
 html_header("Buildd status of $arch ($suite)");
 
@@ -23,7 +18,6 @@ echo "<div style=\"text-align: right\">";
 select_suite($packages, $suite);
 echo "</div><br />";
 
-alert_if_neq("suite", $suite, $_GET["suite"]);
 alert_if_neq("architecture", $arch, $_GET["a"]);
 
 archs_overview_links($suite, $arch);

@@ -141,14 +141,14 @@ function print_legend() {
   }
 }
 
-function check_suite($suite) {
+function check_suite($suite, $default="sid") {
   global $SUITES, $ALIASES;
   if (in_array($suite, $SUITES)) {
     return $suite;
   } else if (in_array($suite, array_keys($ALIASES))) {
     return $ALIASES[$suite];
   } else {
-    return "sid";
+    return $default;
   }
 }
 
@@ -170,6 +170,67 @@ function good_arch($arch) {
   return ($arch == check_arch($arch));
 }
 
+function sanitize_pkgname($package) {
+  return preg_replace ('/[^-[[:alnum:]\+\., ]/', '', $package);
+}
+
+function sanitize_params() {
+  global $dbconn, $ARCHS;
+  $result = array();
+  foreach(func_get_args() as $param) {
+    switch($param) {
+    case "p":
+    case "pkg":
+    case "package":
+      array_push($result, sanitize_pkgname($_GET[$param]));
+      break;
+    case "packages":
+      array_push($result, preg_split('/[ ,]+/', sanitize_pkgname($_GET["p"])));
+      break;
+    case "a":
+      array_push($result, check_arch($_GET["a"]));
+      break;
+    case "arch":
+      if (!valid_arch($_GET["arch"]))
+	array_push($result, "");
+      else
+	array_push($result, $_GET["arch"]);
+      break;
+    case "archs":
+      if (empty($_GET["a"]))
+	array_push($result, $ARCHS);
+      else
+	array_push($result, check_archs($_GET["a"]));
+      break;
+    case "ver":
+      if (!preg_match('/^[[:alnum:].+-:~]+$/', $_GET["ver"]))
+	array_push($result, "");
+      else
+	array_push($result, $_GET["ver"]);
+      break;
+    case "stamp":
+      if (!preg_match('/^[[:digit:]]+$/', $_GET["stamp"]))
+	array_push($result, "");
+      else
+	array_push($result, $_GET["stamp"]);
+      break;
+    case "suite":
+      array_push($result, check_suite($_GET["suite"]));
+      break;
+    case "compact":
+      array_push($result, !empty($_GET["compact"]));
+      break;
+    case "buildd":
+    case "notes":
+      $temp = pg_escape_string($dbconn, $_GET[$param]);
+      if ($param == "buildd" && preg_match('/[^[[:alnum:]_-]/', $temp)) $temp = "";
+      array_push($result, $temp);
+      break;
+    }
+  }
+  return $result;
+}
+
 function remove_values($values, $array) {
   if (!is_array($array) || empty($array)) return $array;
   foreach ($array as $key => $value) {
@@ -179,7 +240,7 @@ function remove_values($values, $array) {
 }
 
 function check_archs($archs) {
-  $archs = explode(",", $archs);
+  if (!is_array($archs)) $archs = explode(",", $archs);
   $archs = array_filter($archs, "good_arch");
   return array_unique($archs);
 }
@@ -572,7 +633,7 @@ function print_jsdiv($mode) {
   echo "<div id=\"jsmode\"></div>\n";
 }
 
-function buildd_status($packages, $suite, $archis="") {
+function buildd_status($packages, $suite, $archis=array()) {
   global $dbconn , $pendingstate , $donestate , $time , $compact , $okstate;
 
   $print = "single";
@@ -798,7 +859,7 @@ function html_footer() {
 
 function alert_if_neq($kind, $good, $bad) {
   if ($good != $bad)
-    printf("<div class=\"alert\">Using <i>%s</i> as %s because <i>%s</i> is unknown!</div>",
+    printf("<div class=\"alert\">Using <i>%s</i> as %s because \"<i>%s</i>\" is unknown!</div>",
        $good, $kind, $bad);
 }
 

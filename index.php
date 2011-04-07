@@ -3,9 +3,7 @@
 require_once("library.php");
 db_connect();
 
-$suite = check_suite($_GET["suite"]);
-$package = $_GET["p"];
-$packages = preg_split('/[ ,]+/', $package);
+list($packages, $suite) = sanitize_params("packages", "suite");
 
 html_header();
 
@@ -18,7 +16,7 @@ echo "<h3>Information about a specific package/multiple packages</h3>";
 select_suite($packages, $suite);
 
 echo "<h3>Build logs for a specific package</h3>";
-select_logs($package);
+select_logs($packages[0]);
 
 echo "</div>";
 html_footer();

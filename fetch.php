@@ -3,13 +3,8 @@
 require_once("library.php");
 db_connect();
 
-$pkg = preg_replace ('/[^-a-z0-9\+\., ]/', '', $_GET["pkg"]);
-$arch  = $_GET["arch"];
-$ver   = $_GET["ver"];
-$stamp = $_GET["stamp"];
-if (!valid_arch($arch)) $arch = "";
-if (!preg_match('/^[[:alnum:].+-:~]+$/', $ver)) $ver = "";
-if (!preg_match('/^[0-9]+$/', $stamp)) $stamp = "";
+list($pkg, $ver, $arch, $suite, $stamp) =
+  sanitize_params("pkg", "ver", "arch", "suite", "stamp");
 
 html_header(sprintf("Build log for %s (%s) on %s", $pkg, $ver, $arch));
 
