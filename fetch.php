@@ -24,11 +24,11 @@ if (!file_exists($path)) {
   } else {
 
     printf("%s → %s → %s → %s\n",
-	    sprintf("<a href=\"package.php?p=%s\">%s</a>", $pkg, $pkg),
-	    logs_link($pkg, "", $ver, $ver),
-	    logs_link($pkg, $arch, $ver, $arch),
-	    fdate($stamp)
-	    );
+	   sprintf("<a href=\"package.php?p=%s\">%s</a>", urlencode($pkg), $pkg),
+	   logs_link($pkg, "", $ver, $ver),
+	   logs_link($pkg, $arch, $ver, $arch),
+	   fdate($stamp)
+	   );
 
     echo "\n<small><pre>\n";
     $skip = true;
