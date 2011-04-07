@@ -767,7 +767,7 @@ $(document).ready(function () { $(\"#pkg_field\").focus() });
 }
 
 function request_uri() {
-  return urlencode(sprintf("https://%s%s", $_ENV["HTTP_HOST"], $_SERVER["REQUEST_URI"]));
+  return urlencode(sprintf("https://%s%s", $_SERVER["HTTP_HOST"], $_SERVER["REQUEST_URI"]));
 }
 
 function html_footer_text() {
