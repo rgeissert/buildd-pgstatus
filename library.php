@@ -435,7 +435,7 @@ function pkg_state_class($state) {
 }
 
 function buildd_name($name) {
-  return ereg_replace('.*-', '', $name);
+  return preg_replace('/.*-/', '', $name);
 }
 
 function pkg_buildd($buildd, $suite, $arch) {
