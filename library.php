@@ -103,7 +103,7 @@ function string_query($package, $suite, $fields="*", $extra="") {
 }
 
 function log_query_arch($pkg, $arch, $ver="") {
-  return sprintf("SELECT '%s'::character varying AS arch, *
+  return sprintf("SELECT '%s'::character varying AS arch, CAST (version AS debversion) AS debversion, *
                   FROM \"%s_public\".pkg_history
                   WHERE package LIKE '%s'
                   %s",
@@ -118,7 +118,7 @@ function log_query($pkg, $archs, $ver) {
   foreach($archs as $arch) {
     $query .= sprintf(" UNION %s", log_query_arch($pkg, $arch, $ver));
   }
-  return sprintf("%s ORDER BY version DESC, arch ASC, timestamp DESC", $query);
+  return sprintf("%s ORDER BY debversion DESC, arch ASC, timestamp DESC", $query);
 }
 
 function ignored_arch($arch, $suite) {
