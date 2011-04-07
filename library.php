@@ -539,11 +539,12 @@ function grep_maintainers($mail, $comaint=false) {
   return array_unique($packages);
 }
 
-function pkg_links($packages, $suite, $p=true) {
+function pkg_links($packages, $suite, $p=true, $mail="") {
   $suite = strip_suite($suite);
+  $links = array();
+  if ($p) echo "<p>";
   if (count($packages) == 1) {
     $package = $packages[0];
-    if ($p) echo "<p>";
     preg_match("/^(?P<all>(?P<prefix>(?:(?:lib)?[[:alnum:]])).*)$/", $package, $pkg);
     $links =
       array(
@@ -554,14 +555,24 @@ function pkg_links($packages, $suite, $p=true) {
             sprintf("<a href=\"http://packages.debian.org/source/%s/%s\">packages.d.o</a>",
                     urlencode($suite), urlencode($package)),
             );
-    echo implode(" &ndash; ", $links);
-    if ($p) echo "</p>\n";
   } else {
     $packages = array_map("urlencode", $packages);
     $srcs = implode(";src=", $packages);
-    $url = sprintf("http://bugs.debian.org/cgi-bin/pkgreport.cgi?src=%s;dist=%s", $srcs, urlencode($suite));
-    printf("<p><a href=\"%s\">Bugs</a></p>", $url);
+    if (!empty($mail))
+      array_push($links,
+		 sprintf("<a href=\"http://qa.debian.org/developer.php?login=%s\">DDPO</a> (%s)",
+			 urlencode($mail),
+			 htmlentities($mail)
+			 )
+		 );
+    array_push($links,
+	       sprintf("<a href=\"http://bugs.debian.org/cgi-bin/pkgreport.cgi?src=%s;dist=%s\">Bugs</a>",
+		       $srcs,
+		       urlencode($suite))
+	       );
   }
+  echo implode(" &ndash; ", $links);
+  if ($p) echo "</p>\n";
 }
 
 function pkg_state_help($state, $notes) {
