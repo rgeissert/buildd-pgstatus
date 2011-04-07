@@ -294,12 +294,14 @@ function select_suite($packages, $selected_suite, $archs="") {
   printf("</select>\n");
   if (!empty($archs)) printf("<input type=\"hidden\" name=\"a\" value=\"%s\" />\n", $archs);
   printf("<input type=\"submit\" value=\"Go\" />\n");
-  printf("<br /><input type=\"checkbox\" name=\"compact\" value=\"compact\" %s /><span class=\"tiny\">Compact mode</span>\n",
+  echo "<br />\n<span class=\"buttons tiny\">\n";
+  printf("<input type=\"checkbox\" name=\"compact\" value=\"compact\" %s />Compact mode\n",
          $compact ? "checked=\"checked\"" : ""
          );
-  printf(" <input type=\"checkbox\" name=\"comaint\" value=\"comaint\" %s /><span class=\"tiny\">Co-maintainers</span>\n",
+  printf("<input type=\"checkbox\" name=\"comaint\" value=\"comaint\" %s />Co-maintainers\n",
          $comaint ? "checked=\"checked\"" : ""
          );
+  echo "</span>\n";
   printf("</p>\n</form>\n");
 }
 

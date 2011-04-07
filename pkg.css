@@ -17,6 +17,10 @@ ul.logs {
     padding-left: 1em;
 }
 
+.buttons {
+    vertical-align: middle;
+}
+
 span.red {
     color: red;
 }
