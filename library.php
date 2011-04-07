@@ -202,8 +202,8 @@ function arch_name($arch) {
 
 function select_logs($package) {
   echo "<form action=\"logs.php\" method=\"get\">\n<p>\n";
-  echo "Package: <input id=pkg_field type=text length=30 name=pkg value=\"$package\">";
-  printf("<input type=submit value=Go>\n");
+  echo "Package: <input id=\"pkg_field\" type=\"text\" name=\"pkg\" value=\"$package\" />";
+  printf("<input type=\"submit\" value=\"Go\" />\n");
   echo "</p>\n</form>\n";
 }
 
@@ -212,7 +212,7 @@ function select_suite($packages, $selected_suite, $archs="") {
   $package = implode(",", $packages);
   $archs = implode(",", check_archs($archs));
   $selected_suite = check_suite($selected_suite);
-  printf("<form action=\"package.php\" method=\"get\">\n<p>\nPackage(s): <input id=pkg_field type=text length=30 name=p value=\"%s\"> Suite: ",
+  printf("<form action=\"package.php\" method=\"get\">\n<p>\nPackage(s): <input id=\"pkg_field\" type=\"text\" name=\"p\" value=\"%s\" /> Suite: ",
          $package
          );
   printf("<select name=\"suite\" id=\"suite\">\n");
@@ -222,12 +222,12 @@ function select_suite($packages, $selected_suite, $archs="") {
     printf("\t<option value=\"%s\"%s>%s</option>\n", $suite, $selected, $suite);
   }
   printf("</select>\n");
-  if (!empty($archs)) printf("<input type=hidden name=a value=\"%s\">\n", $archs);
-  printf("<input type=submit value=Go>\n");
+  if (!empty($archs)) printf("<input type=\"hidden\" name=\"a\" value=\"%s\">\n", $archs);
+  printf("<input type=\"submit\" value=\"Go\" />\n");
   printf("<br /><input type=\"checkbox\" name=\"compact\" value=\"compact\" %s /><span class=\"tiny\">Compact mode</span>\n",
          $compact ? " checked=\"\"" : ""
          );
-  printf("</form>\n");
+  printf("</p>\n</form>\n");
 }
 
 function date_diff_details($time, $lastchange) {
@@ -286,9 +286,9 @@ function buildd_list($arch, $suite) {
 
 function color_text($text, $failed) {
   if ($failed)
-    return "<font color=red>$text</font>";
+    return "<span class=\"red\">$text</span>";
   else
-    return "<font color=green>$text</font>";
+    return "<span class=\"green\">$text</span>";
 }
 
 function no_empty_text($text, $suffix="") {
@@ -315,8 +315,8 @@ function logsize($size) {
 }
 
 function logs_link($pkg, $arch, $ver="", $text="old") {
-  if (!empty($ver)) $ver = sprintf("&ver=%s", urlencode($ver));
-  if (!empty($arch)) $arch = sprintf("&arch=%s", urlencode($arch));
+  if (!empty($ver)) $ver = sprintf("&amp;ver=%s", urlencode($ver));
+  if (!empty($arch)) $arch = sprintf("&amp;arch=%s", urlencode($arch));
   return sprintf("<a href=\"logs.php?pkg=%s%s%s\">%s</a>",
 		 urlencode($pkg),
 		 $ver,
@@ -329,7 +329,7 @@ function loglink($package, $version, $arch, $timestamp, $count, $failed) {
   global $pendingstate;
   $log = "";
   $old = logs_link($package, $arch);
-  $all = sprintf("<a href=\"logs.php?pkg=%s&arch=%s&ver=%s\">all (%d)</a>",
+  $all = sprintf("<a href=\"logs.php?pkg=%s&amp;arch=%s&amp;ver=%s\">all (%d)</a>",
                  urlencode($package),
                  urlencode($arch),
                  urlencode($version),
@@ -339,14 +339,14 @@ function loglink($package, $version, $arch, $timestamp, $count, $failed) {
     $log = "no log";
   else {
     $text = "last log";
-    if ($failed) $text = "<font color=red>$text</font>";
+    if ($failed) $text = "<span class=\"red\">$text</span>";
     $log = build_log_link($package, $arch, $version, $timestamp, $text);
   }
   return sprintf("%s | %s | %s", $old, $all, $log);
 }
 
 function build_log_link($package, $arch, $version, $timestamp, $text) {
-    return sprintf("<a href=\"fetch.php?pkg=%s&arch=%s&ver=%s&stamp=%s\">%s</a>",
+    return sprintf("<a href=\"fetch.php?pkg=%s&amp;arch=%s&amp;ver=%s&amp;stamp=%s\">%s</a>",
                    urlencode($package),
                    urlencode($arch),
                    urlencode($version),
@@ -380,7 +380,7 @@ function buildd_name($name) {
 function pkg_buildd($buildd, $suite, $arch) {
   if ($buildd == "none") return $buildd;
   $name = buildd_name($buildd);
-  return sprintf("<a href=\"architecture.php?a=%s&suite=%s&buildd=%s\">%s</a>",
+  return sprintf("<a href=\"architecture.php?a=%s&amp;suite=%s&amp;buildd=%s\">%s</a>",
                  urlencode($arch),
                  urlencode($suite),
                  urlencode($buildd),
@@ -478,7 +478,7 @@ function some_link($arch, $suite, $text, $sep) {
     $bsep = "[";
     $esep = "]";
   }
-  return sprintf(" <a href=\"architecture.php?a=%s&suite=%s\">%s%s%s</a> ",
+  return sprintf(" <a href=\"architecture.php?a=%s&amp;suite=%s\">%s%s%s</a> ",
                  urlencode($arch), $suite, $bsep, htmlentities($text), $esep);
 }
 
@@ -535,12 +535,12 @@ function multi($info, $version, $log, $arch, $suite) {
 
 function buildd_status_header($mode, $archs, $package, $suite) {
   if ($mode == "single") {
-    echo '<table class=data>
+    echo '<table class="data">
 <tr><th>Architecture</th><th>Version</th><th>Status</th><th>For</th><th>Buildd</th><th>State</th><th>Misc</th><th><a href="logs.php?pkg='.$package.'">Logs</a></th></tr>
 ';
     echo "\n";
   } else {
-    echo "<table class=data><tr><th>Package</th>";
+    echo "<table class=\"data\"><tr><th>Package</th>";
     foreach ($archs as $arch) {
       printf("<th>%s</th>", arch_link($arch, $suite));
     }
@@ -626,7 +626,7 @@ function buildd_status($packages, $suite, $archis="") {
     $overall_status_class = $overall_status ? "good" : "bad";
 
     if ($print == "multi")
-      printf("<tr class=\"%s\"><td><a href=\"package.php?p=%s&suite=%s\">%s&nbsp;%s</a></td>",
+      printf("<tr class=\"%s\"><td><a href=\"package.php?p=%s&amp;suite=%s\">%s&nbsp;%s</a></td>",
              $overall_status_class,
              urlencode($package),
              $suite,
@@ -702,7 +702,7 @@ function buildds_overview_link($arch, $suite, $current_buildd="") {
   if (empty($current_buildd))
     echo " [<strong>all</strong>] ";
   else
-    printf(" [<a href=\"architecture.php?a=%s&suite=%s\">all</a>] ", urlencode($arch), urlencode($suite));
+    printf(" [<a href=\"architecture.php?a=%s&amp;suite=%s\">all</a>] ", urlencode($arch), urlencode($suite));
   if (is_array($list))
     foreach($list as $buildd) {
       $name = $buildd["username"];
@@ -721,7 +721,7 @@ function notes_overview_link($arch, $suite, $current_notes="") {
   $current_notes = empty($current_notes) ? "all" : $current_notes;
   foreach(array('all', 'out-of-date', 'uncompiled', 'related') as $note) {
     $wrap = ($current_notes == $note);
-    $link = sprintf('<a href="architecture.php?a=%s&suite=%s%s">%s</a>', $arch, $suite, ($note != 'all') ? "&notes=$note" : '', $note);
+    $link = sprintf('<a href="architecture.php?a=%s&amp;suite=%s%s">%s</a>', $arch, $suite, ($note != 'all') ? "&amp;notes=$note" : '', $note);
     printf('[%s%s%s] ', $wrap ? '<strong>' : '', $link, $wrap ? '</strong>' : '');
   }
   echo '<br />';
@@ -740,7 +740,7 @@ function page_title($packages, $text="Buildd status for ") {
 function html_header($subtitle="Buildd information pages", $js=false) {
 
   echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">
-<html>
+<html xmlns=\"http://www.w3.org/1999/xhtml\">
 <head>
 <title>$subtitle</title>
 
@@ -773,7 +773,15 @@ function html_footer_text() {
 <small>Page generated on $date UTC<br />
 Pages written by <a href=\"http://wiki.debian.org/MehdiDogguy\">Mehdi Dogguy</a><br />
 Service maintained by the wanna-build team &lt;<a href=\"http://lists.debian.org/debian-wb-team/\">debian-wb-team@lists.debian.org</a>&gt;<br />
-Download code with git: <tt>git clone http://buildd.debian.org/git/pgstatus.git</tt></small>
+Download code with git: <tt>git clone http://buildd.debian.org/git/pgstatus.git</tt></small><br />
+<a href=\"http://validator.w3.org/check?uri=referer\"><img
+        src=\"http://www.w3.org/Icons/valid-xhtml11\"
+        alt=\"Valid XHTML 1.1\" height=\"31\" width=\"88\" /></a>&nbsp;
+<a href=\"http://jigsaw.w3.org/css-validator/check/referer\">
+        <img style=\"border:0;width:88px;height:31px\"
+            src=\"http://jigsaw.w3.org/css-validator/images/vcss\"
+            alt=\"Valid CSS!\" />
+    </a>
 </div>
 </body>
 </html>";

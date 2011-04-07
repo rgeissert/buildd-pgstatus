@@ -55,7 +55,7 @@ while ($info = pg_fetch_assoc($results)) {
   $counts[$state] += 1;
   if ($counts[$state] < $limit) {
     $text = "";
-    if (($counts[$state] - 1) % 10 == 0) $text .= "<font color=green>${counts[$state]}</font>: ";
+    if (($counts[$state] - 1) % 10 == 0) $text .= "<span class=\"green\">${counts[$state]}</span>: ";
     list($count, $logs) = pkg_history($text, $info["version"], $arch, $suite);
     if ($count >= 1) {
       $timestamp = $logs[0]["timestamp"];
@@ -68,10 +68,10 @@ while ($info = pg_fetch_assoc($results)) {
     if (!in_array($state, array("Failed-Removed", "Not-For-Us"))) {
       list($days, $duration) = date_diff_details($time, strtotime($info["state_change"]));
       if ($days > 21)
-        $duration = "<font color=red>$duration</font>";
+        $duration = "<span class=\"red\">$duration</span>";
       elseif ($days > 7)
-        $duration = "<font color=orange>$duration</font>";
-      $link = sprintf("<a href=\"package.php?p=%s&suite=%s\">%s</a>", urlencode($info["package"]), $suite, htmlentities($info["package"]));
+        $duration = "<span class=\"orange\">$duration</span>";
+      $link = sprintf("<a href=\"package.php?p=%s&amp;suite=%s\">%s</a>", urlencode($info["package"]), $suite, htmlentities($info["package"]));
       $text .= sprintf("%s (%s", $link, $duration);
       if ($count > 1 && $state != "BD-Uninstallable") $text .= ", <strong>tried $count times</strong>";
       $text .= default_area($info["section"]);
@@ -99,7 +99,7 @@ foreach($final as $state => $list) {
   if (count($finalp[$state]) > 0) {
     $packages = array_map("urlencode", $finalp[$state]);
     $packages = implode(",", $packages);
-    $link = sprintf("<a href=\"package.php?p=%s&suite=%s\">%s</a>", $packages, $suite, htmlentities($state));
+    $link = sprintf("<a href=\"package.php?p=%s&amp;suite=%s\">%s</a>", $packages, $suite, htmlentities($state));
   }
   echo "<td valign=\"top\">$link</td>";
   echo "<td valign=\"top\" align=\"center\">$count</td>";

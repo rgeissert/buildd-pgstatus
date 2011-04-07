@@ -32,7 +32,7 @@ div.alert {
 
 .status-installed,
 .status-uploaded {
-    background-color: aquamarine;
+    background-color: #7fffd4;
 }
 
 .status-building,
@@ -52,7 +52,7 @@ div.alert {
 .status-failed,
 .status-buildattempted,
 .status-maybefailed {
-    background-color: pink;
+    background-color: #ffc0cb;
 }
 
 .status-maybesuccessful,

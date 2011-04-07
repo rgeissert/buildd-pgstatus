@@ -41,7 +41,7 @@ $query = log_query($pkg, $arch, $ver);
 $query_result = pg_query($dbconn, $query);
 $found = false;
 $lastver = "";
-echo '<table class=data><tr>
+echo '<table class="data"><tr>
         <th>Version</th>
         <th>Result</th>
         <th>Architecture</th>
