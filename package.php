@@ -8,8 +8,10 @@
 require_once("library.php");
 db_connect();
 
-list($packages, $suite, $archs, $compact) =
-  sanitize_params("packages", "suite", "archs", "compact");
+list($entry, $packages, $suite, $archs, $compact, $mail, $comaint) =
+  sanitize_params("p", "packages", "suite", "archs", "compact", "mail", "comaint");
+
+if ($mail) $packages = grep_maintainers($entry, $comaint);
 
 html_header(page_title($packages), count($packages) > 1);
 

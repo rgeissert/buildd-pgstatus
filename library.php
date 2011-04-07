@@ -5,6 +5,8 @@
  *
  */
 
+define("BUILDD_DIR", "/srv/buildd.debian.org");
+
 $ARCHS = array("alpha", "amd64", "arm", "armel", "hppa", "hurd-i386", "i386", "ia64", "kfreebsd-amd64", "kfreebsd-i386", "mips", "mipsel", "powerpc", "s390", "sparc");
 $SUITES = array("oldstable", "stable", "testing", "unstable", "experimental"); // Will be fixed later (when pg connection is established)
 $ALIASES = array();
@@ -54,6 +56,7 @@ $pendingstate = array("Building", "Dep-Wait", "Needs-Build");
 
 $dbconn = FALSE;
 $compact = FALSE;
+$comaint = FALSE;
 $time = time("now");
 
 function db_connect() {
@@ -171,7 +174,7 @@ function good_arch($arch) {
 }
 
 function sanitize_pkgname($package) {
-  return preg_replace ('/[^-[[:alnum:]\+\., ]/', '', $package);
+  return preg_replace ('/[^-[[:alnum:]@\+\., ]/', '', $package);
 }
 
 function sanitize_params() {
@@ -226,6 +229,12 @@ function sanitize_params() {
       if ($param == "buildd" && preg_match('/[^[[:alnum:]_-]/', $temp)) $temp = "";
       array_push($result, $temp);
       break;
+    case "mail":
+      array_push($result, preg_match('/@/', $_GET["p"]));
+      break;
+    case "comaint":
+      array_push($result, !empty($_GET["comaint"]));
+      break;
     }
   }
   return $result;
@@ -269,7 +278,7 @@ function select_logs($package) {
 }
 
 function select_suite($packages, $selected_suite, $archs="") {
-  global $compact, $SUITES;
+  global $compact, $comaint, $SUITES;
   $package = implode(",", $packages);
   $archs = implode(",", check_archs($archs));
   $selected_suite = check_suite($selected_suite);
@@ -283,10 +292,13 @@ function select_suite($packages, $selected_suite, $archs="") {
     printf("\t<option value=\"%s\"%s>%s</option>\n", $suite, $selected, $suite);
   }
   printf("</select>\n");
-  if (!empty($archs)) printf("<input type=\"hidden\" name=\"a\" value=\"%s\">\n", $archs);
+  if (!empty($archs)) printf("<input type=\"hidden\" name=\"a\" value=\"%s\" />\n", $archs);
   printf("<input type=\"submit\" value=\"Go\" />\n");
   printf("<br /><input type=\"checkbox\" name=\"compact\" value=\"compact\" %s /><span class=\"tiny\">Compact mode</span>\n",
-         $compact ? " checked=\"\"" : ""
+         $compact ? "checked=\"checked\"" : ""
+         );
+  printf(" <input type=\"checkbox\" name=\"comaint\" value=\"comaint\" %s /><span class=\"tiny\">Co-maintainers</span>\n",
+         $comaint ? "checked=\"checked\"" : ""
          );
   printf("</p>\n</form>\n");
 }
@@ -416,7 +428,8 @@ function build_log_link($package, $arch, $version, $timestamp, $text) {
 }
 
 function logpath($pkg, $ver, $arch, $stamp) {
-  return sprintf("/srv/buildd.debian.org/db/%s/%s/%s/%s_%s_log.bz2",
+  return sprintf("%s/db/%s/%s/%s/%s_%s_log.bz2",
+		 BUILDD_DIR,
 		 $pkg[0],
 		 $pkg,
 		 $ver,
@@ -500,6 +513,30 @@ function strip_suite ($suite) {
     return $suite;
   else
     return substr($suite, 0, $pos);
+}
+
+function grep_file($maintainer, $file) {
+  $packages = array();
+  if (is_readable($file)) {
+    $f = fopen($file, 'r');
+    while(!feof($f)) {
+      $line = fgets($f, 4096);
+      preg_match("/^(?P<package>[^[:space:]]+).*<(?P<mail>.*)>$/", $line, $r);
+      if ($r["mail"] == $maintainer) array_push($packages, $r["package"]);
+    }
+    fclose($f);
+  }
+  return $packages;
+}
+
+function grep_maintainers($mail, $comaint=false) {
+  $packages = grep_file($mail, sprintf("%s/etc/Maintainers", BUILDD_DIR));
+  if ($comaint)
+    $packages = array_merge(
+      $packages,
+      grep_file($mail, sprintf("%s/etc/Uploaders", BUILDD_DIR)));
+  sort($packages);
+  return array_unique($packages);
 }
 
 function pkg_links($packages, $suite, $p=true) {
