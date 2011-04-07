@@ -174,7 +174,7 @@ function good_arch($arch) {
 }
 
 function sanitize_pkgname($package) {
-  return preg_replace ('/[^-[[:alnum:]@\+\., ]/', '', $package);
+  return preg_replace ('/[^-[[:alnum:]%@\+\.,]/', '', $package);
 }
 
 function sanitize_params() {
