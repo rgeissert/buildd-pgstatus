@@ -563,7 +563,7 @@ function buildd_failures($reason, $failures, $subst=false) {
                               '<a href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=\2">\1</a>',
                               $message);
     }
-    printf("<p><b>%s $reason:</b><br />\n<pre>%s</pre>\n</p>\n", $key, $message);
+    printf("<p><b>%s $reason:</b></p>\n<pre>%s</pre>\n", $key, $message);
   }
 }
 
