@@ -507,11 +507,12 @@ function pkg_links($packages, $suite, $p=true) {
   if (count($packages) == 1) {
     $package = $packages[0];
     if ($p) echo "<p>";
+    preg_match("/^(?P<all>(?P<prefix>(?:(?:lib)?[[:alnum:]])).*)$/", $package, $pkg);
     $links =
       array(
             sprintf("<a href=\"http://packages.qa.debian.org/%s\">PTS</a>", urlencode($package)),
             sprintf("<a href=\"http://packages.debian.org/changelogs/pool/%s/%s/%s/current/changelog\">Changelog</a>",
-                    pkg_area($package), urlencode($package{0}), urlencode($package)),
+                    pkg_area($package), urlencode($pkg["prefix"]), urlencode($pkg["all"])),
             sprintf("<a href=\"http://bugs.debian.org/src:%s\">Bugs</a>", urlencode($package)),
             sprintf("<a href=\"http://packages.debian.org/source/%s/%s\">packages.d.o</a>",
                     urlencode($suite), urlencode($package)),
