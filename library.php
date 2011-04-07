@@ -439,6 +439,11 @@ function logpath($pkg, $ver, $arch, $stamp) {
 		 $stamp);
 }
 
+function tailoflog($pkg, $ver, $arch, $stamp) {
+  return shell_exec(sprintf("bzegrep -B17 \"^Build finished at\" %s | head -n15",
+			    escapeshellarg(logpath($pkg, $ver, $arch, $stamp))));
+}
+
 function pkg_state_class($state) {
   global $compact;
   $state = strtolower(implode("", explode("-", $state)));
@@ -664,19 +669,38 @@ function buildd_status_footer($mode) {
   echo "</table>";
 }
 
-function buildd_failures($reason, $failures, $subst=false) {
-  foreach($failures as $key => $message) {
-    $message = htmlentities($message);
-    if ($subst) {
-      $message = preg_replace('/([a-zA-Z]{3,}:\/\/[^ ]+)/',
-                              '<a href="\1">\1</a>',
-                              $message);
-      $message = preg_replace('/(#([0-9]{3,6}))/',
-                              '<a href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=\2">\1</a>',
-                              $message);
+function buildd_failures($problems) {
+  foreach($problems as $package => $issues) {
+    foreach($issues as $reason => $list) {
+      foreach ($list as $issue) {
+	list($arch, $message) = $issue;
+	$message = htmlentities($message);
+	$message = preg_replace('/([a-zA-Z]{3,}:\/\/[^ ]+)/',
+				'<a href="\1">\1</a>',
+				$message);
+	$message = preg_replace('/(#([0-9]{3,6}))/',
+				'<a href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=\2">\1</a>',
+				$message);
+	printf("<p><b>%s for %s on %s:</b></p>\n<pre class=\"failure\">%s</pre>\n",
+	       ucfirst($reason),
+	       $package,
+	       $arch,
+	       $message);
+      }
     }
-    printf("<p><b>%s $reason:</b></p>\n<pre>%s</pre>\n", $key, $message);
   }
+}
+
+function touch_array(&$array) {
+  if (!isset($array) || !is_array($array))
+    $array = array();
+}
+
+function report_problem(&$problems, $package, $arch, $category, $message) {
+  if (strlen($message) <= 1) return;
+  touch_array($problems[$package][$category]);
+  array_push($problems[$package][$category],
+	     array($arch, $message));
 }
 
 function print_jsdiv($mode) {
@@ -685,7 +709,7 @@ function print_jsdiv($mode) {
 }
 
 function buildd_status($packages, $suite, $archis=array()) {
-  global $dbconn , $pendingstate , $donestate , $time , $compact , $okstate;
+  global $dbconn , $pendingstate , $goodstate, $donestate , $time , $compact , $okstate;
 
   $print = "single";
   if (count($packages) > 1) {
@@ -695,8 +719,7 @@ function buildd_status($packages, $suite, $archis=array()) {
   $suite = check_suite($suite);
   $archs = filter_archs($archis, $suite);
 
-  $failures = array();
-  $bdproblems = array();
+  $problems = array();
 
   print_jsdiv($print);
 
@@ -748,8 +771,15 @@ function buildd_status($packages, $suite, $archis=array()) {
     ksort($infos);
     foreach($infos as $arch => $info) {
       $key = sprintf("%s/%s", $package, $arch);
-      if (is_array($info) && !empty($info["failed"])) $failures[$key] = $info["failed"];
-      if (is_array($info) && !empty($info["bd_problem"])) $bdproblems[$key] = $info["bd_problem"];
+
+      $reason = "failing reason";
+      if (is_array($info) && strlen($info["failed"]) > 1)
+	report_problem($problems, $package, $arch, $reason, $info["failed"]);
+
+      $reason = "dependency installability problem";
+      if (is_array($info) && !empty($info["bd_problem"]))
+	report_problem($problems, $package, $arch, $reason, $info["bd_problem"]);
+
       $version = pkg_version($info["version"], $info["binary_nmu_version"]);
 
       $log = "no log";
@@ -757,11 +787,18 @@ function buildd_status($packages, $suite, $archis=array()) {
       if (is_array($info) && $count >= 1) {
         $timestamp = $logs[0]["timestamp"];
         $lastchange = $info["timestamp"];
+
         if (in_array($info["state"], $pendingstate) && $timestamp > $lastchange) {
           if (isset($logs[0]["result"])) $info["state"] = "Maybe-".ucfirst($logs[0]["result"]);
           $info["state_change"] = $logs[0]["date"];
         }
         $last_failed = in_array($info["state"], $pendingstate);
+
+	if (!$last_failed && !in_array($info["state"], $goodstate)) {
+	  $reason = "tail of logs";
+	  $tail = tailoflog($package, $version, $arch, $timestamp);
+	  report_problem($problems, $package, $arch, $reason, $tail);
+	}
         $log = loglink($package, $version, $arch, $timestamp, $count, $last_failed);
       }
 
@@ -770,6 +807,7 @@ function buildd_status($packages, $suite, $archis=array()) {
 
       if ($info["state"] == "Installed" && $log == "no log") $info["timestamp"] = $time;
       pkg_history($package, $version, $arch, $suite);
+
       if ($log == "no log") $log = sprintf("%s | %s", logs_link($package, $arch), $log);
       $print($info, $version, $log, $arch, $suite);
     }
@@ -779,8 +817,7 @@ function buildd_status($packages, $suite, $archis=array()) {
 
   buildd_status_footer($print);
 
-  buildd_failures("failing reason", $failures, true);
-  buildd_failures("dependency installability problem", $bdproblems);
+  buildd_failures($problems);
 
   print_legend();
 }

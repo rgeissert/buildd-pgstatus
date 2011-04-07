@@ -1,11 +1,11 @@
 a:visited {
-	color: #3030ff;
-	text-decoration: none;
+    color: #3030ff;
+    text-decoration: none;
 }
 
-a:link    {
-	color: #3030ff;
-	text-decoration: none;
+a:link {
+    color: #3030ff;
+    text-decoration: none;
 }
 
 a:hover {
@@ -19,6 +19,13 @@ ul.logs {
 
 .buttons {
     vertical-align: middle;
+}
+
+pre.failure {
+    background-color: #eee;
+    white-space: pre-wrap;
+    padding: 5px;
+    border: 1px solid #999999;
 }
 
 span.red {
