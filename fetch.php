@@ -30,14 +30,14 @@ if (!file_exists($path)) {
 	   fdate($stamp)
 	   );
 
-    echo "\n<small><pre>\n";
+    echo "\n<pre>\n";
     $skip = true;
     while (!feof($bz)) {
       $line = fgets($bz, 4096);
       if ($skip && preg_match("/^$/", $line)) $skip = false;
       if (!$skip) echo $line;
     }
-    echo "\n</pre></small>\n";
+    echo "\n</pre>\n";
   }
   bzclose($bz);
 }
