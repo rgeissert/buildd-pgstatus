@@ -26,7 +26,7 @@ select_logs($package);
 echo "</div>";
 
 pkg_links(array($pkg), "sid");
-printf("<h3>Build logs for <a href=\"package.php?p=%s\">%s</a>", $pkg, $pkg);
+printf("<h3>Build logs for <a href=\"package.php?p=%s\">%s</a>", urlencode($pkg), $pkg);
 if (!empty($ver)) {
   echo "_$ver";
   printf(" <small>[%s]</small>", logs_link($pkg, $arch[0], "", "X"));

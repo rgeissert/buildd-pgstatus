@@ -536,7 +536,7 @@ function multi($info, $version, $log, $arch, $suite) {
 function buildd_status_header($mode, $archs, $package, $suite) {
   if ($mode == "single") {
     echo '<table class="data">
-<tr><th>Architecture</th><th>Version</th><th>Status</th><th>For</th><th>Buildd</th><th>State</th><th>Misc</th><th><a href="logs.php?pkg='.$package.'">Logs</a></th></tr>
+<tr><th>Architecture</th><th>Version</th><th>Status</th><th>For</th><th>Buildd</th><th>State</th><th>Misc</th><th><a href="logs.php?pkg='.urlencode($package).'">Logs</a></th></tr>
 ';
     echo "\n";
   } else {
