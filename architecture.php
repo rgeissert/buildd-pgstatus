@@ -1,5 +1,10 @@
 <?
 
+/**
+ * Copyright 2010-2011 © Mehdi Dogguy <mehdi@debian.org>
+ *
+ */
+
 require_once("library.php");
 db_connect();
 

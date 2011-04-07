@@ -1,7 +1,7 @@
 <?
 
 /**
- * Copyright 2010 © Mehdi Dogguy <mehdi@debian.org>
+ * Copyright 2010-2011 © Mehdi Dogguy <mehdi@debian.org>
  *
  */
 
