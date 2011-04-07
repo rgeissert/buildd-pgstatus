@@ -272,7 +272,7 @@ function arch_name($arch) {
 
 function select_logs($package) {
   echo "<form action=\"logs.php\" method=\"get\">\n<p>\n";
-  echo "Package: <input id=\"pkg_field\" type=\"text\" name=\"pkg\" value=\"$package\" />";
+  echo "Package: <input id=\"log_field\" type=\"text\" name=\"pkg\" value=\"$package\" />";
   printf("<input type=\"submit\" value=\"Go\" />\n");
   echo "</p>\n</form>\n";
 }
