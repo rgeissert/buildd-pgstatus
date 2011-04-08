@@ -35,7 +35,7 @@ if (!file_exists($path)) {
     while (!feof($bz)) {
       $line = fgets($bz, 4096);
       if ($skip && preg_match("/^$/", $line)) $skip = false;
-      if (!$skip) echo $line;
+      if (!$skip) echo htmlspecialchars($line);
     }
     echo "\n</pre>\n";
   }
