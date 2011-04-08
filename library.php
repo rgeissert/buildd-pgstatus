@@ -277,8 +277,14 @@ function select_logs($package) {
   echo "</p>\n</form>\n";
 }
 
+function array_eq($array1, $array2) {
+  $a12 = array_diff($array1, $array2);
+  $a21 = array_diff($array2, $array1);
+  return (empty($a12) && empty($a21));
+}
+
 function select_suite($packages, $selected_suite, $archs="") {
-  global $compact, $comaint, $SUITES;
+  global $compact, $comaint, $SUITES, $ARCHS;
   $package = implode(",", $packages);
   $archs = implode(",", check_archs($archs));
   $selected_suite = check_suite($selected_suite);
@@ -292,7 +298,8 @@ function select_suite($packages, $selected_suite, $archs="") {
     printf("\t<option value=\"%s\"%s>%s</option>\n", $suite, $selected, $suite);
   }
   printf("</select>\n");
-  if (!empty($archs)) printf("<input type=\"hidden\" name=\"a\" value=\"%s\" />\n", $archs);
+  if (!empty($archs) && !array_eq($ARCHS, preg_split('/[ ,]+/', $archs)))
+    printf("<input type=\"hidden\" name=\"a\" value=\"%s\" />\n", $archs);
   printf("<input type=\"submit\" value=\"Go\" />\n");
   echo "<br />\n<span class=\"buttons tiny\">\n";
   printf("<input type=\"checkbox\" name=\"compact\" value=\"compact\" %s />Compact mode\n",
