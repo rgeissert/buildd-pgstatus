@@ -374,7 +374,7 @@ function buildd_list($arch, $suite) {
   return pg_fetch_all($result);
 }
 
-function color_text($text, $failed, $raw) {
+function color_text($text, $failed, $raw=false) {
   if ($raw) return $text;
   if ($failed)
     return "<span class=\"red\">$text</span>";
