@@ -240,6 +240,9 @@ function sanitize_params() {
     case "comaint":
       array_push($result, !empty($_GET["comaint"]));
       break;
+    case "raw":
+      array_push($result, isset($_GET["raw"]));
+      break;
     }
   }
   return $result;
@@ -371,7 +374,8 @@ function buildd_list($arch, $suite) {
   return pg_fetch_all($result);
 }
 
-function color_text($text, $failed) {
+function color_text($text, $failed, $raw) {
+  if ($raw) return $text;
   if ($failed)
     return "<span class=\"red\">$text</span>";
   else
@@ -904,7 +908,11 @@ function page_title($packages, $text="Buildd status for ") {
     return sprintf("%s%s", $text, $pkgs);
 }
 
-function html_header($subtitle="Buildd information pages", $js=false) {
+function html_header($subtitle="Buildd information pages", $js=false, $raw=false) {
+  if ($raw) {
+    header('Content-type: text/plain; charset=UTF-8');
+    return;
+  }
 
   echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">
 <html xmlns=\"http://www.w3.org/1999/xhtml\">
@@ -937,8 +945,11 @@ function request_uri() {
   return urlencode(sprintf("https://%s%s", $_SERVER["HTTP_HOST"], $_SERVER["REQUEST_URI"]));
 }
 
-function html_footer_text() {
+function html_footer_text($raw=false) {
   global $time;
+
+  if ($raw) return;
+
   $date = fdate($time);
   echo "<div id=\"footer\">
 <small>Page generated on $date UTC<br />
@@ -958,9 +969,9 @@ Download code with git: <tt>git clone http://buildd.debian.org/git/pgstatus.git<
 </html>";
 }
 
-function html_footer() {
+function html_footer($raw=false) {
   db_disconnect();
-  html_footer_text();
+  html_footer_text($raw);
 }
 
 function alert_if_neq($kind, $good, $bad) {
