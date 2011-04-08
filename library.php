@@ -321,15 +321,18 @@ function select_suite($packages, $selected_suite, $archs="") {
 }
 
 function date_diff_details($time, $lastchange) {
+  if (empty($time) || empty($lastchange)) return array(0, "");
   $diff = $time - $lastchange;
   $days = floor($diff / (3600 * 24));
   $rest = $diff - ($days * 3600 * 24);
   $hours = floor($rest / 3600);
   $mins = floor(($rest % 3600) / 60);
+  $secs = ($rest % 3600) % 60;
   $date = array();
   if ($days > 0) array_push($date, "${days}d");
   if ($hours > 0) array_push($date, "${hours}h");
   if ($mins > 0) array_push($date, "${mins}m");
+  if (empty($date)) array_push($date, "${secs}s");
   $date = implode(" ", $date);
   return array($days, $date);
 }
@@ -827,7 +830,7 @@ function buildd_status($packages, $suite, $archis=array()) {
       // Maintainer/Porter upload
       if ($log == "no log" && in_array($info["state"], $donestate)) $info["builder"] = "none";
 
-      if ($info["state"] == "Installed" && $log == "no log") $info["timestamp"] = $time;
+      if ($info["state"] == "Installed" && $log == "no log") $info["timestamp"] = "";
       pkg_history($package, $version, $arch, $suite);
 
       if ($log == "no log") $log = sprintf("%s | %s", logs_link($package, $arch), $log);
