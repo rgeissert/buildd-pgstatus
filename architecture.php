@@ -48,6 +48,8 @@ $limit = 500;
 
 $results = pg_query($dbconn, $query);
 
+$nocolor_states = array("Installed", "Auto-Not-For-Us", "Not-For-Us");
+
 while ($info = pg_fetch_assoc($results)) {
   $state = $info["state"];
   if (!isset ($counts[$state])) $counts[$state] = 0;
@@ -66,10 +68,12 @@ while ($info = pg_fetch_assoc($results)) {
     }
     if (!in_array($state, array("Failed-Removed", "Not-For-Us"))) {
       list($days, $duration) = date_diff_details($time, strtotime($info["state_change"]));
-      if ($days > 21)
-        $duration = "<span class=\"red\">$duration</span>";
-      elseif ($days > 7)
-        $duration = "<span class=\"orange\">$duration</span>";
+      if (!in_array($state, $nocolor_states)) {
+	  if ($days > 21)
+	    $duration = "<span class=\"red\">$duration</span>";
+	  elseif ($days > 7)
+	    $duration = "<span class=\"orange\">$duration</span>";
+      }
       $link = sprintf("<a href=\"package.php?p=%s&amp;suite=%s\">%s</a>", urlencode($info["package"]), $suite, htmlentities($info["package"]));
       $text .= sprintf("%s (%s", $link, $duration);
       if ($count > 1 && $state != "BD-Uninstallable") $text .= ", <strong>tried $count times</strong>";
