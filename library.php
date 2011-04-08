@@ -6,6 +6,11 @@
  */
 
 define("BUILDD_DIR", "/srv/buildd.debian.org");
+define("DEBIAN", "Debian");
+define("BUILDD_HOST", "buildd.debian.org");
+define("BUILDD_TEXT", "buildd.d.o");
+define("ALT_BUILDD_HOST", "buildd.debian-ports.org");
+define("ALT_BUILDD_TEXT", "b.d-ports.o");
 
 $ARCHS = array("alpha", "amd64", "arm", "armel", "hppa", "hurd-i386", "i386", "ia64", "kfreebsd-amd64", "kfreebsd-i386", "mips", "mipsel", "powerpc", "s390", "sparc");
 $SUITES = array("oldstable", "stable", "testing", "unstable", "experimental"); // Will be fixed later (when pg connection is established)
@@ -568,6 +573,12 @@ function pkg_links($packages, $suite, $p=true, $mail="") {
             sprintf("<a href=\"http://bugs.debian.org/src:%s\">Bugs</a>", urlencode($package)),
             sprintf("<a href=\"http://packages.debian.org/source/%s/%s\">packages.d.o</a>",
                     urlencode($suite), urlencode($package)),
+	    sprintf("<a href=\"http://%s/status/package.php?p=%s&amp;suite=%s\">%s</a>",
+		    ALT_BUILDD_HOST,
+		    urlencode($package),
+		    urlencode($suite),
+		    ALT_BUILDD_TEXT
+		    )
             );
   } else {
     $packages = array_map("urlencode", $packages);
@@ -901,14 +912,14 @@ function html_header($subtitle="Buildd information pages", $js=false) {
 <title>$subtitle</title>
 
 <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />
-<link type=\"text/css\" rel=\"stylesheet\" href=\"/gfx/revamp.css\" />
-<link rel=\"StyleSheet\" type=\"text/css\" href=\"pkg.css\" />
-<link rel=\"StyleSheet\" type=\"text/css\" href=\"status.css\" />
-<script type=\"text/javascript\" src=\"jquery.js\"></script>
+<link type=\"text/css\" rel=\"stylesheet\" href=\"media/revamp.css\" />
+<link rel=\"StyleSheet\" type=\"text/css\" href=\"media/pkg.css\" />
+<link rel=\"StyleSheet\" type=\"text/css\" href=\"media/status.css\" />
+<script type=\"text/javascript\" src=\"media/jquery.js\"></script>
 ";
 
   if ($js) echo "
-<script type=\"text/javascript\" src=\"status.js\"></script>
+<script type=\"text/javascript\" src=\"media/status.js\"></script>
 ";
 
   echo "
@@ -918,7 +929,7 @@ $(document).ready(function () { $(\"#pkg_field\").focus() });
 ";
 
   echo "\n</head>\n<body>\n";
-  echo "<h1 id=\"title\">Debian Package Auto-Building</h1>\n";
+  printf ("<h1 id=\"title\">%s Package Auto-Building</h1>\n", DEBIAN);
   echo "<h2 id=\"subtitle\">$subtitle</h2>\n";
 }
 
