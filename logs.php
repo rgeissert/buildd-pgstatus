@@ -40,11 +40,32 @@ if (!empty($arch)) {
  }
 echo "</h3>\n";
 
+function next_version($version, $lastver, $found) {
+  global $pkg, $ver, $arch;
+  if (!$found || $version != $lastver)
+    if ($version != $ver)
+      return logs_link($pkg, $arch[0], $version, $version);
+    else
+      return $version;
+  else
+    return "";
+}
+
+function next_arch($archi, $lastarch, $found) {
+  global $pkg, $ver, $arch;
+  if ($found && $lastarch == $archi) return "";
+  if (count($arch) > 0)
+    return $archi;
+  else
+    return logs_link($pkg, $archi, $ver, $archi);
+}
+
 $query = log_query($pkg, $arch, $ver);
 $query_result = pg_query($dbconn, $query);
 $found = false;
 $lastver = "";
-echo '<table class="data"><tr>
+$lastarch = "";
+echo '<table class="data logs"><tr>
         <th>Version</th>
         <th>Result</th>
         <th>Architecture</th>
@@ -55,6 +76,7 @@ echo '<table class="data"><tr>
 while($r = pg_fetch_assoc($query_result)) {
   if (count($arch) == 0) {
     if (!$found) $lastver = $r["version"];
+    if (!$found) $lastarch = $r["arch"];
     if ($r["version"] != $lastver) echo "<tr><td colspan=\"6\">&nbsp;</td></tr>";
   }
 
@@ -64,31 +86,28 @@ while($r = pg_fetch_assoc($query_result)) {
   $duration = date_diff_details($r["build_time"], 0);
   $disk_space = logsize($r["disk_space"]);
 
+  $version = next_version($r["version"], $lastver, $found);
+  $architecture = next_arch($r["arch"], $lastarch, $found);
   printf("<tr>
-            <td>%s</td>
-            <td>%s</td>
+            <td%s>%s</td>
+            <td%s>%s</td>
             <td>%s</td>
             <td>%s</td>
             <td>%s</td>
             <td>%s</td>
          </tr>\n",
-	 (!$found || $r["version"] != $lastver ?
-	   ($r["version"] != $ver ?
-	     logs_link($pkg, $arch[0], $r["version"], $r["version"])
-	    :
-	     $r["version"]
-	    )
-	  :
-	    "—"
-	 ),
+	 (empty($version) ? " class=\"empty\" " : ""),
+	 $version,
+	 (empty($architecture) ? " class=\"empty\" " : ""),
+	 $architecture,
 	 $link,
-	 (count($arch) > 0 ? $r["arch"] : logs_link($pkg, $r["arch"], $ver, $r["arch"])),
 	 $r["timestamp"],
 	 no_empty_text($duration[1]),
 	 no_empty_text($disk_space));
 
   $found = true;
   $lastver = $r["version"];
+  $lastarch = $r["arch"];
 }
 pg_free_result($query_result);
 if (!$found) {

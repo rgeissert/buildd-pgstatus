@@ -95,3 +95,11 @@ table.data th.title {
 }
 
 .data tr:hover { background: #f4f4f4; }
+
+.logs td.empty {
+  border-top: 0px;
+}
+
+.logs td {
+  border-bottom: 0px;
+}
