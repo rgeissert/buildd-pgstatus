@@ -192,7 +192,11 @@ function sanitize_params() {
       array_push($result, sanitize_pkgname($_GET[$param]));
       break;
     case "packages":
-      array_push($result, preg_split('/[ ,]+/', sanitize_pkgname($_GET["p"])));
+      $packages = preg_split('/[ ,]+/', sanitize_pkgname($_GET["p"]));
+      foreach($packages as $key => $package) {
+	if (empty($package)) unset($packages[$key]);
+      }
+      array_push($result, $packages);
       break;
     case "a":
       array_push($result, check_arch($_GET["a"]));
