@@ -59,6 +59,7 @@ $okstate = array("Built", "Installed", "Uploaded");
 $donestate = array("Installed", "Uploaded");
 $pendingstate = array("Building", "Dep-Wait", "Needs-Build");
 $skipstates = array("overwritten-by-arch-all", "arch-all-only");
+$passtates = array("absent", "packages-arch-specific");
 
 $dbconn = FALSE;
 $compact = FALSE;
@@ -473,6 +474,18 @@ function logpath($pkg, $ver, $arch, $stamp) {
 		 $stamp);
 }
 
+function paspath($suite) {
+  return sprintf("%s/etc/packages-arch-specific/checkout/%s/Packages-arch-specific",
+                 BUILDD_DIR,
+                 $suite);
+}
+
+function paslink($suite) {
+  return sprintf("<a href=\"https://%s/quinn-diff/%s/Packages-arch-specific\">Packages-arch-specific</a>",
+                 BUILDD_HOST,
+                 $suite);
+}
+
 function tailoflog($pkg, $ver, $arch, $stamp) {
   return shell_exec(sprintf("bzegrep -B17 \"^Build finished at\" %s | head -n15",
 			    escapeshellarg(logpath($pkg, $ver, $arch, $stamp))));
@@ -668,7 +681,31 @@ function single($info, $version, $log, $arch, $suite) {
            $log
            );
   } else {
-    printf("<tr><td colspan=\"8\"><i>No entry in %s database, check <a href=\"https://buildd.debian.org/quinn-diff/%s/Packages-arch-specific\">Packages-arch-specific</a></i></td></tr>\n", urlencode($arch), urlencode($suite));
+    echo "<tr><td colspan=\"8\"><i>";
+    switch ($info) {
+    case "overwritten-by-arch-all":
+      echo "This package has been overwritten and became architecture \"all\"";
+      break;
+    case "arch-all-only":
+      echo "This is an architecture \"all\" package. Not present in wanna-build";
+      break;
+    case "arch-not-in-arch-list":
+      printf("%s is not present in the architecture list set by the maintainer",
+             $arch);
+      break;
+    case "packages-arch-specific":
+      printf("Present in %s database, but marked as Auto-Not-For-Us (%s)",
+             urlencode($arch),
+             paslink($suite));
+      break;
+    case "absent":
+    default:
+      printf("No entry in %s database, check %s",
+             urlencode($arch),
+             paslink($suite));
+      break;
+    }
+    echo "</i></td></tr>\n";
   }
 }
 
@@ -710,18 +747,31 @@ function buildd_status_footer($mode) {
   echo "</table>";
 }
 
-function buildd_failures($problems) {
+function detect_links($message) {
+  $message = preg_replace('/([a-zA-Z]{3,}:\/\/[^ ]+)/',
+                          '<a href="\1">\1</a>',
+                          $message);
+  $message = preg_replace('/(#([0-9]{3,6}))/',
+                          '<a href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=\2">\1</a>',
+                          $message);
+  return $message;
+}
+
+function buildd_failures($problems, $pas, $suite) {
+  if (!empty($pas)) {
+    $message = shell_exec(sprintf("egrep \"%s\" %s",
+                                  implode("|", $pas),
+                                  paspath($suite)));
+    if (!empty($message))
+      printf("<p><b>Occurences found in %s file:</b></p>\n<pre class=\"failure\">%s</pre>\n",
+             paslink($suite),
+             detect_links(htmlentities($message)));
+  }
   foreach($problems as $package => $issues) {
     foreach($issues as $reason => $list) {
       foreach ($list as $issue) {
 	list($arch, $message) = $issue;
-	$message = htmlentities($message);
-	$message = preg_replace('/([a-zA-Z]{3,}:\/\/[^ ]+)/',
-				'<a href="\1">\1</a>',
-				$message);
-	$message = preg_replace('/(#([0-9]{3,6}))/',
-				'<a href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=\2">\1</a>',
-				$message);
+	$message = detect_links(htmlentities($message));
 	printf("<p><b>%s for %s on %s:</b></p>\n<pre class=\"failure\">%s</pre>\n",
 	       ucfirst($reason),
 	       $package,
@@ -771,7 +821,7 @@ function wb_relevant_packages($packages, $suite) {
 }
 
 function buildd_status($packages, $suite, $archis=array()) {
-  global $dbconn , $pendingstate , $goodstate, $donestate , $time , $compact , $okstate;
+  global $dbconn , $pendingstate , $goodstate, $donestate , $skipstates, $passtates, $time , $compact , $okstate;
 
   $print = "single";
   if (count($packages) > 1) {
@@ -782,6 +832,7 @@ function buildd_status($packages, $suite, $archis=array()) {
   $archs = filter_archs($archis, $suite);
 
   $problems = array();
+  $pas = array();
 
   print_jsdiv($print);
 
@@ -804,12 +855,17 @@ function buildd_status($packages, $suite, $archis=array()) {
         if (!in_array($arch, $archs)) continue;
         $info["arch"] = $arch;
         $info["timestamp"] = strtotime($info["state_change"]);
-        $infos[$arch] = $info;
+        if ($info["state"] == "Auto-Not-For-Us") {
+          $infos[$arch] = $info["notes"];
+        } else {
+          $infos[$arch] = $info;
+        }
         $overall_status = $overall_status
           && (   !is_array($info)
               || $info["notes"] == "uncompiled"
               || ignored_arch($arch, $suite)
               || $info["state"] == "Not-For-Us"
+              || $info["state"] == "Auto-Not-For-Us"
               || in_array($info["state"], $okstate)
              );
       }
@@ -834,6 +890,9 @@ function buildd_status($packages, $suite, $archis=array()) {
     foreach($infos as $arch => $info) {
       $key = sprintf("%s/%s", $package, $arch);
 
+      if (in_array($info, $passtates) && !in_array($package, $pas))
+        array_push($pas, $package);
+
       $reason = "failing reason";
       if (is_array($info) && strlen($info["failed"]) > 1)
 	report_problem($problems, $package, $arch, $reason, $info["failed"]);
@@ -846,7 +905,7 @@ function buildd_status($packages, $suite, $archis=array()) {
 
       $log = "no log";
       list($count, $logs) = pkg_history($package, $version, $arch, $suite);
-      if (is_array($info) && $count >= 1) {
+      if (is_array($info) && $count >= 1 && $info["state"] != "Auto-Not-For-Us") {
         $timestamp = $logs[0]["timestamp"];
         $lastchange = $info["timestamp"];
 
@@ -872,6 +931,11 @@ function buildd_status($packages, $suite, $archis=array()) {
 
       if ($log == "no log") $log = sprintf("%s | %s", logs_link($package, $arch), $log);
       $print($info, $version, $log, $arch, $suite);
+
+      // There is no need to repeat the same message for all selected architectures.
+      // So, we decide to skip to rest.
+      if ($print == "single" && (in_array($info, $skipstates)))
+        break;
     }
 
     if ($print == "multi") echo "</tr>\n";
@@ -879,7 +943,7 @@ function buildd_status($packages, $suite, $archis=array()) {
 
   buildd_status_footer($print);
 
-  buildd_failures($problems);
+  buildd_failures($problems, $pas, $suite);
 
   print_legend();
 }
