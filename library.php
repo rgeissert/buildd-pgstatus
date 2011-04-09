@@ -742,8 +742,7 @@ function report_problem(&$problems, $package, $arch, $category, $message) {
 }
 
 function print_jsdiv($mode) {
-  if ($mode != "multi") return;
-  echo "<div id=\"jsmode\"></div>\n";
+  if ($mode == "multi") echo "<div id=\"jsmode\"></div>\n";
 }
 
 function wb_relevant_packages($packages, $suite) {
