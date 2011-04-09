@@ -959,14 +959,10 @@ function html_footer_text($raw=false) {
 Pages written by <a href=\"http://wiki.debian.org/MehdiDogguy\">Mehdi Dogguy</a><br />
 Service maintained by the wanna-build team &lt;<a href=\"http://lists.debian.org/debian-wb-team/\">debian-wb-team@lists.debian.org</a>&gt;<br />
 Download code with git: <tt>git clone http://buildd.debian.org/git/pgstatus.git</tt></small><br />
-<a href=\"http://validator.w3.org/check?uri=".request_uri()."\"><img
-        src=\"http://www.w3.org/Icons/valid-xhtml11\"
-        alt=\"Valid XHTML 1.1\" height=\"31\" width=\"88\" /></a>&nbsp;
-<a href=\"http://jigsaw.w3.org/css-validator/validator?uri=".request_uri()."\">
-        <img style=\"border:0;width:88px;height:31px\"
-            src=\"http://jigsaw.w3.org/css-validator/images/vcss\"
-            alt=\"Valid CSS!\" />
-    </a>
+<span class=\"tiny\">
+<a href=\"http://validator.w3.org/check?uri=".request_uri()."\">Valid XHTML</a>&nbsp;
+<a href=\"http://jigsaw.w3.org/css-validator/validator?uri=".request_uri()."\">Valid CSS</a>
+</span>
 </div>
 </body>
 </html>";
