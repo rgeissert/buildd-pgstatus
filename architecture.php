@@ -93,29 +93,31 @@ while ($info = pg_fetch_assoc($results)) {
   }
 }
 
-echo "<table class=\"data\">\n";
-ksort($final);
-foreach($final as $state => $list) {
-  $count = $counts[$state];
-  echo "<tr>";
-  $link = $state;
-  if (count($finalp[$state]) > 0) {
-    $packages = array_map("urlencode", $finalp[$state]);
-    $packages = implode(",", $packages);
-    $link = sprintf("<a href=\"package.php?p=%s&amp;suite=%s\">%s</a>", $packages, $suite, htmlentities($state));
+if (!empty($final)) {
+  echo "<table class=\"data\">\n";
+  ksort($final);
+  foreach($final as $state => $list) {
+    $count = $counts[$state];
+    echo "<tr>";
+    $link = $state;
+    if (count($finalp[$state]) > 0) {
+      $packages = array_map("urlencode", $finalp[$state]);
+      $packages = implode(",", $packages);
+      $link = sprintf("<a href=\"package.php?p=%s&amp;suite=%s\">%s</a>", $packages, $suite, htmlentities($state));
+    }
+    echo "<td valign=\"top\">$link</td>";
+    echo "<td valign=\"top\" align=\"center\">$count</td>";
+    echo "<td>";
+    if ($count < $limit) {
+      echo implode(", ", $list);
+    } else {
+      echo "<i>Too many results, cannot display</i>";
+    }
+    echo "</td>";
+    echo "</tr>";
   }
-  echo "<td valign=\"top\">$link</td>";
-  echo "<td valign=\"top\" align=\"center\">$count</td>";
-  echo "<td>";
-  if ($count < $limit) {
-    echo implode(", ", $list);
-  } else {
-    echo "<i>Too many results, cannot display</i>";
-  }
-  echo "</td>";
-  echo "</tr>";
+  echo "</table>\n";
 }
-echo "</table>\n";
 
 echo "</div>";
 
