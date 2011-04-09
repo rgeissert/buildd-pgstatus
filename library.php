@@ -733,6 +733,20 @@ function print_jsdiv($mode) {
   echo "<div id=\"jsmode\"></div>\n";
 }
 
+function wb_relevant_packages($packages, $suite) {
+  global $dbconn;
+
+  $relevant = array();
+  foreach ($packages as $package) {
+    $package = pg_escape_string($dbconn, $package);
+    $result = pg_query($dbconn, string_query($package, $suite));
+    if (pg_num_rows($result) > 0) array_push($relevant, $package);
+    pg_free_result($result);
+  }
+
+  return $relevant;
+}
+
 function buildd_status($packages, $suite, $archis=array()) {
   global $dbconn , $pendingstate , $goodstate, $donestate , $time , $compact , $okstate;
 
@@ -760,9 +774,7 @@ function buildd_status($packages, $suite, $archis=array()) {
     $infos = array();
     $overall_status = TRUE;
 
-    $not_in_wb = true;
     while($info = pg_fetch_assoc($result)) {
-      $not_in_wb = false;
       $arch = $info["arch"];
       if (!empty($arch)) {
         if ($arch == "freebsd-i386") $arch = "k".$arch;
@@ -780,7 +792,6 @@ function buildd_status($packages, $suite, $archis=array()) {
       }
     }
     pg_free_result($result);
-    if ($not_in_wb && $print == "multi") continue;
 
     foreach($archs as $arch) {
       if (!isset($infos[$arch])) $infos[$arch] = "absent";
