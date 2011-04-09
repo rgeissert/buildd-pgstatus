@@ -61,7 +61,6 @@ $pendingstate = array("Building", "Dep-Wait", "Needs-Build");
 
 $dbconn = FALSE;
 $compact = FALSE;
-$comaint = FALSE;
 $time = time("now");
 
 function db_connect() {
@@ -238,7 +237,16 @@ function sanitize_params() {
       array_push($result, preg_match('/@/', $_GET["p"]));
       break;
     case "comaint":
-      array_push($result, !empty($_GET["comaint"]));
+      switch ($_GET["comaint"]) {
+      case "yes":
+      case "no":
+      case "only":
+	array_push($result, $_GET["comaint"]);
+	break;
+      default:
+	array_push($result, "no");
+	break;
+      }
       break;
     case "raw":
       array_push($result, isset($_GET["raw"]));
@@ -291,8 +299,8 @@ function array_eq($array1, $array2) {
   return (empty($a12) && empty($a21));
 }
 
-function select_suite($packages, $selected_suite, $archs="") {
-  global $compact, $comaint, $SUITES, $ARCHS;
+function select_suite($packages, $selected_suite, $archs="", $comaint="no") {
+  global $compact, $SUITES, $ARCHS;
   $package = implode(",", $packages);
   $archs = implode(",", check_archs($archs));
   $selected_suite = check_suite($selected_suite);
@@ -313,8 +321,8 @@ function select_suite($packages, $selected_suite, $archs="") {
   printf("<input type=\"checkbox\" name=\"compact\" value=\"compact\" %s />Compact mode\n",
          $compact ? "checked=\"checked\"" : ""
          );
-  printf("<input type=\"checkbox\" name=\"comaint\" value=\"comaint\" %s />Co-maintainers\n",
-         $comaint ? "checked=\"checked\"" : ""
+  printf("<input type=\"checkbox\" name=\"comaint\" value=\"yes\" %s />Co-maintainers\n",
+         $comaint != "no" ? "checked=\"checked\"" : ""
          );
   echo "</span>\n";
   printf("</p>\n</form>\n");
@@ -555,12 +563,12 @@ function grep_file($maintainer, $file) {
   return $packages;
 }
 
-function grep_maintainers($mail, $comaint=false) {
-  $packages = grep_file($mail, sprintf("%s/etc/Maintainers", BUILDD_DIR));
-  if ($comaint)
-    $packages = array_merge(
-      $packages,
-      grep_file($mail, sprintf("%s/etc/Uploaders", BUILDD_DIR)));
+function grep_maintainers($mail, $comaint) {
+  $packages = array();
+  if ($comaint == "yes" || $comaint == "no")
+    $packages = array_merge($packages, grep_file($mail, sprintf("%s/etc/Maintainers", BUILDD_DIR)));
+  if ($comaint == "yes" || $comaint == "only")
+    $packages = array_merge($packages, grep_file($mail, sprintf("%s/etc/Uploaders", BUILDD_DIR)));
   sort($packages);
   return array_unique($packages);
 }
