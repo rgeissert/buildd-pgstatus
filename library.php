@@ -579,6 +579,7 @@ function pkg_links($packages, $suite, $p=true, $mail="") {
   if ($p) echo "<p>";
   if (count($packages) == 1) {
     $package = $packages[0];
+    if (empty($package)) return;
     preg_match("/^(?P<all>(?P<prefix>(?:(?:lib)?[[:alnum:]])).*)$/", $package, $pkg);
     $links =
       array(
