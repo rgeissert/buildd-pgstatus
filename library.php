@@ -760,7 +760,9 @@ function buildd_status($packages, $suite, $archis=array()) {
     $infos = array();
     $overall_status = TRUE;
 
+    $not_in_wb = true;
     while($info = pg_fetch_assoc($result)) {
+      $not_in_wb = false;
       $arch = $info["arch"];
       if (!empty($arch)) {
         if ($arch == "freebsd-i386") $arch = "k".$arch;
@@ -778,6 +780,7 @@ function buildd_status($packages, $suite, $archis=array()) {
       }
     }
     pg_free_result($result);
+    if ($not_in_wb && $print == "multi") continue;
 
     foreach($archs as $arch) {
       if (!isset($infos[$arch])) $infos[$arch] = "absent";
