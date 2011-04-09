@@ -178,6 +178,7 @@ function good_arch($arch) {
 }
 
 function sanitize_pkgname($package) {
+  $package = preg_replace("/([^_\/]+)([_\/].*)?/", "$1", $package);
   return preg_replace ('/[^-[[:alnum:]%@\+\.,]/', '', $package);
 }
 
@@ -192,8 +193,9 @@ function sanitize_params() {
       array_push($result, sanitize_pkgname($_GET[$param]));
       break;
     case "packages":
-      $packages = preg_split('/[ ,]+/', sanitize_pkgname($_GET["p"]));
+      $packages = preg_split('/[ ,]+/', $_GET["p"]);
       foreach($packages as $key => $package) {
+        $packages[$key] = sanitize_pkgname($package);
 	if (empty($package)) unset($packages[$key]);
       }
       array_push($result, $packages);
