@@ -932,7 +932,7 @@ function page_title($packages, $text="Buildd status for ") {
   $pkgs = "";
   $count = count($packages);
   if ($count >= 1 && $count < 10) $pkgs = " " . implode(", ", $packages);
-  if ($count >= 10)
+  if ($count >= 10 || $count == 0)
     return sprintf("%s selected packages", $text);
   else
     return sprintf("%s%s", $text, $pkgs);
