@@ -58,6 +58,7 @@ $goodstate = array("Maybe-Successful", "Built", "Installed", "Uploaded");
 $okstate = array("Built", "Installed", "Uploaded");
 $donestate = array("Installed", "Uploaded");
 $pendingstate = array("Building", "Dep-Wait", "Needs-Build");
+$skipstates = array("overwritten-by-arch-all", "arch-all-only");
 
 $dbconn = FALSE;
 $compact = FALSE;
@@ -748,13 +749,21 @@ function print_jsdiv($mode) {
 }
 
 function wb_relevant_packages($packages, $suite) {
-  global $dbconn;
+  global $dbconn, $skipstates;
 
   $relevant = array();
   foreach ($packages as $package) {
     $package = pg_escape_string($dbconn, $package);
     $result = pg_query($dbconn, string_query($package, $suite));
-    if (pg_num_rows($result) > 0) array_push($relevant, $package);
+    $in_wb = false;
+    while($info = pg_fetch_assoc($result)) {
+      if (in_array($info["notes"], $skipstates)) {
+        $in_wb = false;
+        break;
+      }
+      $in_wb = true;
+    }
+    if ($in_wb) array_push($relevant, $package);
     pg_free_result($result);
   }
 
