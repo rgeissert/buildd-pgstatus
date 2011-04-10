@@ -71,8 +71,8 @@ if (empty($pkg)) {
   $lastarch = "";
   echo '<table class="data logs"><tr>
         <th>Version</th>
-        <th>Result</th>
         <th>Architecture</th>
+        <th>Result</th>
         <th>Build date</th>
         <th>Build time</th>
         <th>Disk space</th>
