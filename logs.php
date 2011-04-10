@@ -87,7 +87,7 @@ if (empty($pkg)) {
     $result = color_text("Maybe-".ucwords($r["result"]), $r["result"] == "failed");
     $link = build_log_link($pkg, $r["arch"], $r["version"], strtotime($r["timestamp"]),
 			   $result);
-    $duration = date_diff_details($r["build_time"], 0);
+    $duration = date_diff_details(0, $r["build_time"]);
     $disk_space = logsize($r["disk_space"]);
 
     $version = next_version($r["version"], $lastver, $found);

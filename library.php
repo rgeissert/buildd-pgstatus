@@ -337,8 +337,8 @@ function select_suite($packages, $selected_suite, $archs="", $comaint="no") {
 }
 
 function date_diff_details($time, $lastchange) {
-  if (empty($time) || empty($lastchange)) return array(0, "");
-  $diff = $time - $lastchange;
+  if (empty($lastchange)) return array(0, "");
+  $diff = abs($time - $lastchange);
   $days = floor($diff / (3600 * 24));
   $rest = $diff - ($days * 3600 * 24);
   $hours = floor($rest / 3600);
