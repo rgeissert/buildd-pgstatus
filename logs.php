@@ -81,7 +81,11 @@ if (empty($pkg)) {
     if (count($arch) == 0) {
       if (!$found) $lastver = $r["version"];
       if (!$found) $lastarch = $r["arch"];
-      if ($r["version"] != $lastver) echo "<tr><td colspan=\"6\">&nbsp;</td></tr>";
+      if ($r["version"] != $lastver) {
+        echo "<tr><td colspan=\"6\">&nbsp;</td></tr>";
+        $lastver = "";
+        $lastarch = "";
+      };
     }
 
     $result = color_text("Maybe-".ucwords($r["result"]), $r["result"] == "failed");
