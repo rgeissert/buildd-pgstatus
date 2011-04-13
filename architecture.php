@@ -66,7 +66,7 @@ while ($info = pg_fetch_assoc($results)) {
         $info["state_change"] = $logs[0]["date"];
       }
     }
-    if (!in_array($state, array("Failed-Removed", "Not-For-Us"))) {
+    if (!in_array($state, array("Failed-Removed", "Not-For-Us", "Auto-Not-For-Us"))) {
       list($days, $duration) = date_diff_details($time, strtotime($info["state_change"]));
       if (!in_array($state, $nocolor_states)) {
 	  if ($days > 21)
