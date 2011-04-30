@@ -353,7 +353,7 @@ function date_diff_details($time, $lastchange) {
   return array($days, $date);
 }
 
-function date_diff($lastchange) {
+function date_diff_short($lastchange) {
   global $time;
   $result = date_diff_details($time, $lastchange);
   return $result[1];
@@ -674,7 +674,7 @@ function single($info, $version, $log, $arch, $suite) {
            pkg_state_class($info["state"]),
            $statehelp[$info["state"]],
            pkg_status($state),
-           date_diff($info["timestamp"]),
+           date_diff_short($info["timestamp"]),
            pkg_buildd($info["builder"], $suite, $arch),
            pkg_state($info["state"], $info["notes"]),
 	   ($misc == ":" ? "—" : $misc),
