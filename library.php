@@ -55,6 +55,7 @@ $compactarch = array(
 $valid_archs = array(); // Will be filled in later.
 
 $goodstate = array("Maybe-Successful", "Built", "Installed", "Uploaded");
+$badstate = array("Failed", "Maybe-Failed", "Build-Attempted");
 $okstate = array("Built", "Installed", "Uploaded");
 $donestate = array("Installed", "Uploaded");
 $pendingstate = array("Building", "Dep-Wait", "Needs-Build");
@@ -821,7 +822,7 @@ function wb_relevant_packages($packages, $suite) {
 }
 
 function buildd_status($packages, $suite, $archis=array()) {
-  global $dbconn , $pendingstate , $goodstate, $donestate , $skipstates, $passtates, $time , $compact , $okstate;
+  global $dbconn , $pendingstate , $goodstate, $badstate, $donestate , $skipstates, $passtates, $time , $compact , $okstate;
 
   $print = "single";
   if (count($packages) > 1) {
@@ -893,13 +894,17 @@ function buildd_status($packages, $suite, $archis=array()) {
       if (in_array($info, $passtates) && !in_array($package, $pas))
         array_push($pas, $package);
 
-      $reason = "failing reason";
-      if (is_array($info) && strlen($info["failed"]) > 1)
-	report_problem($problems, $package, $arch, $reason, $info["failed"]);
+      if (in_array($info["state"], $badstate)) {
+          $reason = "failing reason";
+          if (is_array($info) && strlen($info["failed"]) > 1)
+            report_problem($problems, $package, $arch, $reason, $info["failed"]);
+      }
 
-      $reason = "dependency installability problem";
-      if (is_array($info) && !empty($info["bd_problem"]))
-	report_problem($problems, $package, $arch, $reason, $info["bd_problem"]);
+      if (in_array($info["state"], array("Dep-Wait", "BD-Uninstallable"))) {
+        $reason = "dependency installability problem";
+        if (is_array($info) && !empty($info["bd_problem"]))
+          report_problem($problems, $package, $arch, $reason, $info["bd_problem"]);
+      }
 
       $version = pkg_version($info["version"], $info["binary_nmu_version"]);
 
@@ -915,7 +920,7 @@ function buildd_status($packages, $suite, $archis=array()) {
         }
         $last_failed = in_array($info["state"], $pendingstate);
 
-	if (!$last_failed && !in_array($info["state"], $goodstate)) {
+	if (in_array($info["state"], $badstate)) {
 	  $reason = "tail of logs";
 	  $tail = tailoflog($package, $version, $arch, $timestamp);
 	  report_problem($problems, $package, $arch, $reason, $tail);
