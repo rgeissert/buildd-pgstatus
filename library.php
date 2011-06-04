@@ -764,7 +764,7 @@ function buildd_failures($problems, $pas, $suite) {
                                   implode("|", $pas),
                                   paspath($suite)));
     if (!empty($message))
-      printf("<p><b>Occurences found in %s file:</b></p>\n<pre class=\"failure\">%s</pre>\n",
+      printf("<p><b>Occurrences found in %s file:</b></p>\n<pre class=\"failure\">%s</pre>\n",
              paslink($suite),
              detect_links(htmlentities($message)));
   }
