@@ -57,7 +57,7 @@ while ($info = pg_fetch_assoc($results)) {
   if ($counts[$state] < $limit) {
     $text = "";
     if (($counts[$state] - 1) % 10 == 0) $text .= "<span class=\"green\">${counts[$state]}</span>: ";
-    list($count, $logs) = pkg_history($text, $info["version"], $arch, $suite);
+    list($count, $logs) = pkg_history($info["package"], $info["version"], $arch, $suite);
     if ($count >= 1) {
       $timestamp = $logs[0]["timestamp"];
       $lastchange = strtotime($info["state_change"]);
