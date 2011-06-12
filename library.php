@@ -79,7 +79,7 @@ function db_connect() {
     $ALIASES[$row[0]] = $row[1];
   pg_free_result($result);
 
-  $result = pg_query($dbconn, "select * from distribution_architectures");
+  $result = pg_query($dbconn, "select distribution, architecture from distribution_architectures");
   while ($row = pg_fetch_assoc($result)) {
     $valid_archs[$row["distribution"]][] = $row["architecture"];
   }
