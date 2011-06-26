@@ -763,7 +763,7 @@ function buildd_status_footer($mode) {
 }
 
 function detect_links($message) {
-  $message = preg_replace('/([a-zA-Z]{3,}:\/\/[^ ]+)/',
+  $message = preg_replace('/([a-zA-Z]{3,}:\/\/[^ \n]+)/',
                           '<a href="\1">\1</a>',
                           $message);
   $message = preg_replace('/(#([0-9]{3,6}))/',
