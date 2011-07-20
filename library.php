@@ -80,6 +80,8 @@ $dbconn = FALSE;
 $compact = FALSE;
 $time = time("now");
 
+$idcounter = 0; // Counter to generate unique id attributes
+
 function db_connect() {
   global $dbconn, $SUITES, $ALIASES, $valid_archs;
   $dbconn = pg_pconnect("service=wanna-build") or status_fail();
@@ -676,16 +678,17 @@ function arch_link($arch, $suite, $sep=false) {
   return some_link($arch, $suite, arch_name($arch), $sep);
 }
 
-function single($info, $version, $log, $arch, $suite) {
+function single($info, $version, $log, $arch, $suite, $problemid) {
   global $statehelp;
   $state = $info["state"];
   if ($state == "Dep-Wait" && !empty($info["depends"]))
     $state .= " (" . $info["depends"] . ")";
   if (is_array($info)) {
     $misc = sprintf("%s:%s", $info["section"], $info["priority"]);
-    printf("<tr><td>%s</td><td>%s</td><td class=\"status %s\" title=\"%s\">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
+    printf("<tr><td>%s</td><td>%s</td><td %s class=\"status %s\" title=\"%s\">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
            arch_link($info["arch"], $suite),
            $version,
+           ($problemid ? "id=\"status-" . $problemid. "\"" : ""),
            pkg_state_class($info["state"]),
            $statehelp[$info["state"]],
            pkg_status($state),
@@ -731,10 +734,11 @@ function pkg_status_symbol($good) {
     return "✘";
 }
 
-function multi($info, $version, $log, $arch, $suite) {
+function multi($info, $version, $log, $arch, $suite, $problemid) {
   global $compact;
   if (is_array($info)) {
-    printf("<td class=\"%s\" title=\"%s\">%s</td>",
+    printf("<td %s class=\"status %s\" title=\"%s\">%s</td>",
+           ($problemid ? "id=\"status-" . $problemid. "\"" : ""),
            pkg_state_class($info["state"]),
            pkg_state_help($info["state"], $info["notes"]),
            pkg_status($info["state"]));
@@ -785,14 +789,15 @@ function buildd_failures($problems, $pas, $suite) {
   foreach($problems as $package => $issues) {
     foreach($issues as $reason => $list) {
       foreach ($list as $issue) {
-	list($arch, $message) = $issue;
+	list($arch, $message, $problemid) = $issue;
 	$message = detect_links(htmlentities($message));
-	printf("<p><b>%s for <a href=\"package.php?p=%s&amp;suite=%s\">%s</a> on %s:</b></p>\n<pre class=\"failure\">%s</pre>\n",
+	printf("<p><b>%s for <a href=\"package.php?p=%s&amp;suite=%s\">%s</a> on %s:</b></p>\n<pre id=\"problem-%d\" class=\"failure\">%s</pre>\n",
                ucfirst($reason),
                urlencode($package),
                $suite,
 	       $package,
 	       $arch,
+               $problemid,
 	       $message);
       }
     }
@@ -806,9 +811,12 @@ function touch_array(&$array) {
 
 function report_problem(&$problems, $package, $arch, $category, $message) {
   if (strlen($message) <= 1) return;
+  global $idcounter;
+  $idcounter++;
   touch_array($problems[$package][$category]);
   array_push($problems[$package][$category],
-	     array($arch, $message));
+	     array($arch, $message, $idcounter));
+  return $idcounter;
 }
 
 function print_jsdiv($mode) {
@@ -906,6 +914,7 @@ function buildd_status($packages, $suite, $archis=array()) {
     ksort($infos);
     foreach($infos as $arch => $info) {
       $key = sprintf("%s/%s", $package, $arch);
+      $problemid = 0;
 
       if (in_array($info, $passtates) && !in_array($package, $pas))
         array_push($pas, $package);
@@ -913,13 +922,13 @@ function buildd_status($packages, $suite, $archis=array()) {
       if (in_array($info["state"], $badstate)) {
           $reason = "failing reason";
           if (is_array($info) && strlen($info["failed"]) > 1)
-            report_problem($problems, $package, $arch, $reason, $info["failed"]);
+            $problemid = report_problem($problems, $package, $arch, $reason, $info["failed"]);
       }
 
       if (in_array($info["state"], array("Dep-Wait", "BD-Uninstallable"))) {
         $reason = "dependency installability problem";
         if (is_array($info) && !empty($info["bd_problem"]))
-          report_problem($problems, $package, $arch, $reason, $info["bd_problem"]);
+          $problemid = report_problem($problems, $package, $arch, $reason, $info["bd_problem"]);
       }
 
       $version = pkg_version($info["version"], $info["binary_nmu_version"]);
@@ -939,7 +948,7 @@ function buildd_status($packages, $suite, $archis=array()) {
 	if (in_array($info["state"], $badstate)) {
 	  $reason = "tail of logs";
 	  $tail = tailoflog($package, $version, $arch, $timestamp);
-	  report_problem($problems, $package, $arch, $reason, $tail);
+	  $problemid = report_problem($problems, $package, $arch, $reason, $tail);
 	}
         $log = loglink($package, $version, $arch, $timestamp, $count, $last_failed);
       }
@@ -951,7 +960,7 @@ function buildd_status($packages, $suite, $archis=array()) {
       pkg_history($package, $version, $arch, $suite);
 
       if ($log == "no log") $log = sprintf("%s | %s", logs_link($package, $arch), $log);
-      $print($info, $version, $log, $arch, $suite);
+      $print($info, $version, $log, $arch, $suite, $problemid);
 
       // There is no need to repeat the same message for all selected architectures.
       // So, we decide to skip to rest.
