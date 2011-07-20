@@ -738,10 +738,12 @@ function pkg_status_symbol($good) {
 function multi($info, $version, $log, $arch, $suite, $problemid) {
   global $compact;
   if (is_array($info)) {
-    printf("<td %s class=\"status %s\" title=\"%s\">%s</td>",
+    printf("<td %s class=\"status %s\" title=\"%s%s\">%s</td>",
            ($problemid ? "id=\"status-" . $problemid. "\"" : ""),
            pkg_state_class($info["state"]),
            pkg_state_help($info["state"], $info["notes"]),
+           ($info["state"] == "Dep-Wait" && !empty($info["depends"]) ?
+             "\n".$info["depends"] : ""),
            pkg_status($info["state"]));
   } else {
     printf("<td><i>%s</i></td>\n", ($compact ? "" : "not in w-b"));
