@@ -1067,7 +1067,21 @@ function html_header($subtitle="Buildd information pages", $js=false, $raw=false
 
   echo "
 <script type=\"text/javascript\">
-$(document).ready(function () { $(\"#pkg_field\").focus() });
+$(document).ready(function () {
+  $(\"#pkg_field\").focus();
+
+  $(\".status\").each(function (){
+    var id = $(this).attr('id');
+    if (id && id.substr(0,7) == 'status-') {
+      otherid = id.replace('status-','problem-');
+      problem = $('#'+otherid);
+      title = $(this).attr('title');
+      if (title) { title += ':\\n';}
+      title += $(problem).text();
+      $(this).attr('title',title);
+    }
+  });
+});
 </script>
 ";
 
