@@ -787,8 +787,10 @@ function buildd_failures($problems, $pas, $suite) {
       foreach ($list as $issue) {
 	list($arch, $message) = $issue;
 	$message = detect_links(htmlentities($message));
-	printf("<p><b>%s for %s on %s:</b></p>\n<pre class=\"failure\">%s</pre>\n",
-	       ucfirst($reason),
+	printf("<p><b>%s for <a href=\"package.php?p=%s&amp;suite=%s\">%s</a> on %s:</b></p>\n<pre class=\"failure\">%s</pre>\n",
+               ucfirst($reason),
+               urlencode($package),
+               $suite,
 	       $package,
 	       $arch,
 	       $message);
