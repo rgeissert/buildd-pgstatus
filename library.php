@@ -31,6 +31,7 @@ $SUITES = array("oldstable", "stable", "testing", "unstable", "experimental"); /
 $ALIASES = array();
 
 $statehelp = array(
+ "BD-Uninstallable" => "Package should be built, but its build dependencies cannot be fulfilled",
  "Build-Attempted"  => "A build was attempted, but it failed",
  "Building"         => "Package is assigned to a buildd which should build it shortly/is building it",
  "Maybe-Failed"     => "A build was attempted, but it failed",
