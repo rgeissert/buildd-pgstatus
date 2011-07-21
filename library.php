@@ -523,6 +523,11 @@ function buildd_name($name) {
   return preg_replace('/.*-/', '', $name);
 }
 
+function buildd_realname($name, $arch) {
+  $name = preg_replace('/\..*/', '', $name);
+  return sprintf("buildd_%s-%s", $arch, $name);
+}
+
 function pkg_buildd($buildd, $suite, $arch) {
   if ($buildd == "none") return $buildd;
   $name = buildd_name($buildd);

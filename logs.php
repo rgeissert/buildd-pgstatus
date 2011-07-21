@@ -88,6 +88,7 @@ if (empty($pkg)) {
         <th>Architecture</th>
         <th>Result</th>
         <th>Build date</th>
+        <th>Builder</th>
         <th>Build time</th>
         <th>Disk space</th>
     </tr>';
@@ -107,12 +108,19 @@ if (empty($pkg)) {
 			   $result);
     $duration = date_diff_details(0, $r["build_time"]);
     $disk_space = logsize($r["disk_space"]);
+    $builder = $r["builder"];
+    if (empty($builder)) {
+      $builder = no_empty_text("");
+    } else {
+      $builder = pkg_buildd(buildd_realname($builder, $r["arch"]), "sid", $r["arch"]);
+    }
 
     $version = next_version($r["version"], $lastver, $found);
     $architecture = next_arch($r["arch"], $lastarch, $found);
     printf("<tr>
             <td%s>%s</td>
             <td%s>%s</td>
+            <td>%s</td>
             <td>%s</td>
             <td>%s</td>
             <td>%s</td>
@@ -124,6 +132,7 @@ if (empty($pkg)) {
 	   $architecture,
 	   $link,
 	   $r["timestamp"],
+           $builder,
 	   no_empty_text($duration[1]),
 	   no_empty_text($disk_space));
 
