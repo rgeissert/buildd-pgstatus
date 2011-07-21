@@ -142,7 +142,7 @@ if (empty($pkg)) {
   }
   pg_free_result($query_result);
   if (!$found) {
-    printf("<tr><td colspan=\"6\"><i>No build logs found for %s (%s) in the database</i></td></tr>",
+    printf("<tr><td colspan=\"7\"><i>No build logs found for %s (%s) in the database</i></td></tr>",
 	   $pkg,
 	   $ver);
 
