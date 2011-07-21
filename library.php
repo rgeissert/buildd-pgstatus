@@ -520,7 +520,7 @@ function pkg_state_class($state) {
 }
 
 function buildd_name($name) {
-  return preg_replace('/.*-/', '', $name);
+  return preg_replace('/buildd_(kfreebsd-|hurd-)?[^-]*-/', '', $name);
 }
 
 function buildd_realname($name, $arch) {
