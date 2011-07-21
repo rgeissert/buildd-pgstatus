@@ -97,7 +97,7 @@ if (empty($pkg)) {
       if (!$found) $lastver = $r["version"];
       if (!$found) $lastarch = $r["arch"];
       if ($r["version"] != $lastver) {
-        echo "<tr><td colspan=\"6\">&nbsp;</td></tr>";
+        echo "<tr><td colspan=\"7\">&nbsp;</td></tr>";
         $lastver = "";
         $lastarch = "";
       };
