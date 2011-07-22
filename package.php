@@ -22,12 +22,14 @@
 require_once("library.php");
 db_connect();
 
-list($entry, $packages, $suite, $archs, $compact, $mail, $comaint) =
-  sanitize_params("p", "packages", "suite", "archs", "compact", "mail", "comaint");
+list($entry, $maint, $pkg, $packages, $suite, $archs, $compact, $mail, $comaint) =
+  sanitize_params("p", "maint", "pkg", "packages", "suite", "archs", "compact", "mail", "comaint");
+if (empty($packages) && !empty($pkg)) $packages = array($pkg);
 
-if ($mail)
+if ($mail) {
+  if (empty($entry)) $entry = $maint;
   $packages = grep_maintainers($entry, $comaint);
-else
+} else
   $entry = "";
 
 if (count($packages) > 1) $packages = wb_relevant_packages($packages, $suite);

@@ -209,11 +209,16 @@ function sanitize_params() {
     switch($param) {
     case "p":
     case "pkg":
+    case "maint":
     case "package":
       array_push($result, sanitize_pkgname($_GET[$param]));
       break;
     case "packages":
-      $packages = preg_split('/[ ,]+/', $_GET["p"]);
+      $packages = array();
+      if (!empty($_GET["p"]))
+        $packages = preg_split('/[ ,]+/', $_GET["p"]);
+      else
+        $packages = preg_split('/[ ,]+/', $_GET["pkg"]);
       foreach($packages as $key => $package) {
         $packages[$key] = sanitize_pkgname($package);
 	if (empty($package)) unset($packages[$key]);
@@ -248,7 +253,9 @@ function sanitize_params() {
 	array_push($result, $_GET["stamp"]);
       break;
     case "suite":
-      array_push($result, check_suite($_GET["suite"]));
+      $key = "suite";
+      if (empty($_GET[$key])) $key = "dist";
+      array_push($result, check_suite($_GET[$key]));
       break;
     case "compact":
       array_push($result, !empty($_GET["compact"]));
@@ -260,7 +267,7 @@ function sanitize_params() {
       array_push($result, $temp);
       break;
     case "mail":
-      array_push($result, preg_match('/@/', $_GET["p"]));
+      array_push($result, preg_match('/@/', $_GET["p"]) || preg_match('/@/', $_GET["maint"]));
       break;
     case "comaint":
       switch ($_GET["comaint"]) {
