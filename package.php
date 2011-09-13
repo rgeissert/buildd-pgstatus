@@ -34,7 +34,7 @@ if ($mail) {
 
 if (count($packages) > 1) $packages = wb_relevant_packages($packages, $suite);
 
-$title = page_title($packages);
+$title = sprintf ("%s (%s)", page_title($packages), $suite);
 if ($mail) $title = sprintf("Buildd status for packages maintained by %s",
 			    htmlentities($entry));
 html_header($title, count($packages) > 1);
