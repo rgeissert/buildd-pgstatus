@@ -37,7 +37,7 @@ echo "<div style=\"text-align: right\">";
 select_suite($packages, $suite);
 echo "</div><br />";
 
-alert_if_neq("architecture", $arch, $_GET["a"]);
+alert_if_neq("architecture", $arch, safe_get($_GET, "a"));
 
 archs_overview_links($suite, $arch);
 
@@ -111,7 +111,7 @@ if (!empty($final)) {
   echo "<table class=\"data\">\n";
   ksort($final);
   foreach($final as $state => $list) {
-    $count = $counts[$state];
+    $count = safe_get($counts, $state, 0);
     echo "<tr>";
     $link = $state;
     if (count($finalp[$state]) > 0) {
