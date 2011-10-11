@@ -202,23 +202,30 @@ function sanitize_pkgname($package) {
   return preg_replace ('/[^-[[:alnum:]%@\+\.,]/', '', $package);
 }
 
+function safe_get($array, $key, $default="") {
+  if (array_key_exists($key, $array))
+    return $array[$key];
+  else
+    return $default;
+}
+
 function sanitize_params() {
   global $dbconn, $ARCHS;
   $result = array();
-  foreach(func_get_args() as $param) {
+  foreach(func_get_args() as $key => $param) {
     switch($param) {
     case "p":
     case "pkg":
     case "maint":
     case "package":
-      array_push($result, sanitize_pkgname($_GET[$param]));
+      array_push($result, sanitize_pkgname(safe_get($_GET, $param)));
       break;
     case "packages":
       $packages = array();
-      if (!empty($_GET["p"]))
+      if (array_key_exists("p", $_GET) && !empty($_GET["p"]))
         $packages = preg_split('/[ ,]+/', $_GET["p"]);
       else
-        $packages = preg_split('/[ ,]+/', $_GET["pkg"]);
+        $packages = preg_split('/[ ,]+/', safe_get($_GET, "pkg"));
       foreach($packages as $key => $package) {
         $packages[$key] = sanitize_pkgname($package);
 	if (empty($package)) unset($packages[$key]);
@@ -226,55 +233,61 @@ function sanitize_params() {
       array_push($result, $packages);
       break;
     case "a":
-      array_push($result, check_arch($_GET["a"]));
+      array_push($result, check_arch(safe_get($_GET, "a")));
       break;
     case "arch":
-      if (!valid_arch($_GET["arch"]))
+      $tmpa = safe_get($_GET, "arch");
+      if (!valid_arch($tmpa))
 	array_push($result, "");
       else
-	array_push($result, $_GET["arch"]);
+	array_push($result, $tmpa);
       break;
     case "archs":
-      if (empty($_GET["a"]))
+      $tmpas = safe_get($_GET, "a");
+      if (empty($tmpas))
 	array_push($result, $ARCHS);
       else
-	array_push($result, check_archs($_GET["a"]));
+	array_push($result, check_archs($tmpas));
       break;
     case "ver":
-      if (!preg_match('/^[[:alnum:].+-:~]+$/', $_GET["ver"]))
+      $tmpv = safe_get($_GET, "ver");
+      if (!preg_match('/^[[:alnum:].+-:~]+$/', $tmpv))
 	array_push($result, "");
       else
-	array_push($result, $_GET["ver"]);
+	array_push($result, $tmpv);
       break;
     case "stamp":
-      if (!preg_match('/^[[:digit:]]+$/', $_GET["stamp"]))
+      $tmpst = safe_get($_GET, "stamp");
+      if (!preg_match('/^[[:digit:]]+$/', $tmpst))
 	array_push($result, "");
       else
-	array_push($result, $_GET["stamp"]);
+	array_push($result, $tmpst);
       break;
     case "suite":
       $key = "suite";
-      if (empty($_GET[$key])) $key = "dist";
-      array_push($result, check_suite($_GET[$key]));
+      if (!array_key_exists($key, $_GET) || empty($_GET[$key])) $key = "dist";
+      if (array_key_exists($key, $_GET)) array_push($result, check_suite($_GET[$key]));
+      if (!array_key_exists($key, $_GET)) array_push($result, check_suite(""));
       break;
     case "compact":
-      array_push($result, !empty($_GET["compact"]));
+      array_push($result, array_key_exists("compact", $_GET) && !empty($_GET["compact"]));
       break;
     case "buildd":
     case "notes":
-      $temp = pg_escape_string($dbconn, $_GET[$param]);
+      $temp = pg_escape_string($dbconn, safe_get($_GET, $param));
       if ($param == "buildd" && preg_match('/[^[[:alnum:]_-]/', $temp)) $temp = "";
       array_push($result, $temp);
       break;
     case "mail":
-      array_push($result, preg_match('/@/', $_GET["p"]) || preg_match('/@/', $_GET["maint"]));
+      array_push($result, preg_match('/@/', safe_get($_GET, "p")) || preg_match('/@/', safe_get($_GET, "maint")));
       break;
     case "comaint":
-      switch ($_GET["comaint"]) {
+      $tmp = safe_get($_GET, $param);
+      switch ($tmp) {
       case "yes":
       case "no":
       case "only":
-	array_push($result, $_GET["comaint"]);
+	array_push($result, $tmp);
 	break;
       default:
 	array_push($result, "no");
@@ -282,7 +295,7 @@ function sanitize_params() {
       }
       break;
     case "raw":
-      array_push($result, isset($_GET["raw"]));
+      array_push($result, array_key_exists("raw", $_GET));
       break;
     }
   }
@@ -319,7 +332,7 @@ function arch_name($arch) {
   else return $arch;
 }
 
-function select_logs($package) {
+function select_logs($package="") {
   echo "<form action=\"logs.php\" method=\"get\">\n<p>\n";
   echo "Package: <input id=\"log_field\" type=\"text\" name=\"pkg\" value=\"$package\" />";
   printf("<input type=\"submit\" value=\"Go\" />\n");
@@ -606,7 +619,8 @@ function grep_file($maintainer, $file) {
     while(!feof($f)) {
       $line = fgets($f, 4096);
       preg_match("/^(?P<package>[^[:space:]]+).*<(?P<mail>.*)>$/", $line, $r);
-      if ($r["mail"] == $maintainer) array_push($packages, $r["package"]);
+      if (array_key_exists("mail", $r) && $r["mail"] == $maintainer)
+        array_push($packages, $r["package"]);
     }
     fclose($f);
   }
@@ -1028,7 +1042,7 @@ function buildds_overview_link($arch, $suite, $current_buildd="") {
       $name = $buildd["username"];
       if ($name == "buildd_${arch}") continue;
       if ($name != $current_buildd)
-        $name = pkg_buildd($buildd[username], $suite, $arch);
+        $name = pkg_buildd($buildd["username"], $suite, $arch);
       else
         $name = "<strong>" . buildd_name($name) . "</strong>";
       printf(" [%s] ", $name);

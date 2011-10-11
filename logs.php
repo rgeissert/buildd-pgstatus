@@ -33,7 +33,7 @@ function next_version($version, $lastver, $found) {
   global $pkg, $ver, $arch;
   if (!$found || $version != $lastver)
     if ($version != $ver)
-      return logs_link($pkg, $arch[0], $version, $version);
+      return logs_link($pkg, safe_get($arch, 0), $version, $version);
     else
       return $version;
   else
@@ -59,7 +59,7 @@ html_header(sprintf("Build logs for %s%s%s",
 echo "<div id=\"body\">\n";
 
 echo "<div style=\"float:right\">";
-select_logs($package);
+select_logs($pkg);
 echo "</div>";
 
 pkg_links(array($pkg), "sid");
@@ -70,7 +70,7 @@ if (empty($pkg)) {
   printf("<h3>Build logs for <a href=\"package.php?p=%s\">%s</a>", urlencode($pkg), $pkg);
   if (!empty($ver)) {
     echo "_$ver";
-    printf(" <small>[%s]</small>", logs_link($pkg, $arch[0], "", "X"));
+    printf(" <small>[%s]</small>", logs_link($pkg, safe_get($arch, 0), "", "X"));
   }
   if (!empty($arch)) {
     printf(" on <a href=\"architecture.php?a=%s\">%s</a>", $arch[0], $arch[0]);
