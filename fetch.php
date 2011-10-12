@@ -43,6 +43,7 @@ html_header(sprintf("Build log for %s (%s) on %s", $pkg, $ver, $arch), false, $r
 ifecho("<div id=\"body\">\n");
 $path = logpath($pkg, $ver, $arch, $stamp);
 if (!file_exists($path)) {
+  header("Status: 404 Not Found");
   echo color_text("log file not found!", true, $raw);
 } else {
   $bz = bzopen($path, 'r');
