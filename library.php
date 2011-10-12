@@ -1147,7 +1147,7 @@ $(document).ready(function () {
 ";
 
   echo "\n</head>\n<body>\n";
-  printf ("<h1 id=\"title\">%s Package Auto-Building</h1>\n", DEBIAN);
+  printf ("<h1 id=\"title\"><a href=\"http://%s\">%s Package Auto-Building</a></h1>\n", BUILDD_HOST, DEBIAN);
   echo "<h2 id=\"subtitle\">$subtitle</h2>\n";
 }
 
