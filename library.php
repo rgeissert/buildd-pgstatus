@@ -43,6 +43,7 @@ $statehelp = array(
  "Needs-Build"      => "Package is queued for building, waiting for a buildd to become available",
  "Uploaded"         => "Package was built successfully and uploaded, but didn't appear yet in the archive",
  "Not-For-Us"       => "Package is marked as not-to-be-built on this architecture",
+ "Failed-Removed"   => "Package does not need building on this architecture",
  );
 
 $compactstate = array(
@@ -71,7 +72,7 @@ $valid_archs = array(); // Will be filled in later.
 
 $goodstate = array("Maybe-Successful", "Built", "Installed", "Uploaded");
 $badstate = array("Failed", "Maybe-Failed", "Build-Attempted");
-$okstate = array("Built", "Installed", "Uploaded");
+$okstate = array("Failed-Removed", "Built", "Installed", "Uploaded");
 $donestate = array("Installed", "Uploaded");
 $pendingstate = array("Building", "Dep-Wait", "Needs-Build");
 $skipstates = array("overwritten-by-arch-all", "arch-all-only");
