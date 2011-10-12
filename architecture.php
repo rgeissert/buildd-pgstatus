@@ -26,8 +26,9 @@ function pkg_name($pkg) {
   return $pkg["name"];
 }
 
-list($packages, $suite, $arch, $buildd, $notes) =
-  sanitize_params("packages", "suite", "a", "buildd", "notes");
+list($packages, $suite, $buildd, $notes) =
+  sanitize_params("packages", "suite", "buildd", "notes");
+$arch = check_arch(safe_get($_GET, "a"), $suite);
 
 html_header("Buildd status of $arch ($suite)");
 

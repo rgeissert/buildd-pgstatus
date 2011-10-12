@@ -206,10 +206,13 @@ function valid_arch($arch) {
   return in_array($arch, $ARCHS);
 }
 
-function check_arch($arch) {
-  global $ARCHS;
+function check_arch($arch, $suite="") {
+  global $ARCHS, $valid_archs;
   if (valid_arch($arch)) {
     return $arch;
+  } elseif (!empty($suite) && array_key_exists($suite, $valid_archs) && !empty($valid_archs[$suite])) {
+    sort($valid_archs[$suite]);
+    return $valid_archs[$suite][0];
   } else {
     return $ARCHS[0];
   }
