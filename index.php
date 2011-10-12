@@ -35,10 +35,7 @@ echo "<h3>Information about a specific package/multiple packages</h3>";
 select_suite($packages, $suite);
 
 echo "<h3>Build logs for a specific package</h3>";
-if (empty($packages))
-  select_logs();
-else
-  select_logs($packages[0]);
+select_logs(safe_get($packages, 0, ""));
 
 echo "</div>";
 html_footer();

@@ -209,6 +209,14 @@ function safe_get($array, $key, $default="") {
     return $default;
 }
 
+function safe_char($string, $pos, $default='') {
+  if (empty($string) || strlen($string) < $pos) {
+    return $default;
+  } else {
+    return substr($string, $pos, $pos+1);
+  }
+}
+
 function sanitize_params() {
   global $dbconn, $ARCHS;
   $result = array();
@@ -505,7 +513,7 @@ function build_log_link($package, $arch, $version, $timestamp, $text) {
 function logpath($pkg, $ver, $arch, $stamp) {
   return sprintf("%s/db/%s/%s/%s/%s_%s_log.bz2",
 		 BUILDD_DIR,
-		 $pkg[0],
+		 safe_char($pkg, 0),
 		 $pkg,
 		 $ver,
 		 $arch,
