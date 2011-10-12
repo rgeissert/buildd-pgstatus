@@ -112,24 +112,42 @@ function db_disconnect() {
   pg_close($dbconn);
 }
 
-function string_query($package, $suite, $fields="*", $extra="") {
+function string_query($package, $suite, $fields="", $extra="") {
   global $dbconn;
   $package = pg_escape_string($dbconn, $package);
-  $format = "select %s from query_source_package('%s', '%s') as
-      query_source_package(arch character varying,            package character varying,
-                           distribution character varying,    version character varying,
-                           state character varying,           section character varying,
-                           priority character varying,        installed_version character varying,
-                           previous_state character varying,  state_change timestamp without time zone,
-                           notes character varying,           builder character varying,
-                           failed text,                       old_failed text,
-                           binary_nmu_version integer,        binary_nmu_changelog character varying,
-                           failed_category character varying, permbuildpri integer,
-                           buildpri integer,                  depends character varying,
-                           rel character varying,             bd_problem text,
-                           extra_depends character varying,   extra_conflicts character varying,
-                           build_arch_all boolean)
-      order by arch asc %s";
+  if (empty($fields)) {
+    $fields = "architecture,
+               package,
+               distribution,
+               version::character varying,
+               state,
+               section,
+               priority,
+               installed_version,
+               previous_state,
+               state_change,
+               notes,
+               builder,
+               failed,
+               old_failed,
+               binary_nmu_version,
+               binary_nmu_changelog,
+               failed_category,
+               permbuildpri,
+               buildpri,
+               depends,
+               rel,
+               bd_problem,
+               extra_depends,
+               extra_conflicts,
+               build_arch_all";
+  }
+  $format = "SELECT %s
+             FROM packages_public
+             WHERE distribution = '%s'
+               AND package = '%s'
+             ORDER BY architecture ASC
+             %s";
   return sprintf($format, $fields, $suite, $package, $extra);
 }
 
@@ -725,7 +743,7 @@ function single($info, $version, $log, $arch, $suite, $problemid) {
   if (is_array($info)) {
     $misc = sprintf("%s:%s", $info["section"], $info["priority"]);
     printf("<tr><td>%s</td><td>%s</td><td %s class=\"status %s\" title=\"%s\">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
-           arch_link($info["arch"], $suite),
+           arch_link($info["architecture"], $suite),
            $version,
            ($problemid ? "id=\"status-" . $problemid. "\"" : ""),
            pkg_state_class($info["state"]),
@@ -915,11 +933,11 @@ function buildd_status($packages, $suite, $archis=array()) {
     $overall_status = TRUE;
 
     while($info = pg_fetch_assoc($result)) {
-      $arch = $info["arch"];
+      $arch = $info["architecture"];
       if (!empty($arch)) {
         if ($arch == "freebsd-i386") $arch = "k".$arch;
         if (!in_array($arch, $archs)) continue;
-        $info["arch"] = $arch;
+        $info["architecture"] = $arch;
         $info["timestamp"] = strtotime($info["state_change"]);
         if ($info["state"] == "Auto-Not-For-Us") {
           $infos[$arch] = $info["notes"];
