@@ -26,8 +26,8 @@ define("BUILDD_TEXT", "buildd.d.o");
 define("ALT_BUILDD_HOST", "buildd.debian-ports.org");
 define("ALT_BUILDD_TEXT", "b.d-ports.o");
 
-$ARCHS = array("alpha", "amd64", "arm", "armel", "hppa", "hurd-i386", "i386", "ia64", "kfreebsd-amd64", "kfreebsd-i386", "mips", "mipsel", "powerpc", "s390", "sparc");
-$SUITES = array("oldstable", "stable", "testing", "unstable", "experimental"); // Will be fixed later (when pg connection is established)
+$ARCHS = array("amd64"); // Will be fixed later (when pg connection is established)
+$SUITES = array("sid"); // Will be fixed later (when pg connection is established)
 $ALIASES = array();
 
 $statehelp = array(
@@ -84,8 +84,12 @@ $time = time("now");
 $idcounter = 0; // Counter to generate unique id attributes
 
 function db_connect() {
-  global $dbconn, $SUITES, $ALIASES, $valid_archs;
+  global $dbconn, $ARCHS, $SUITES, $ALIASES, $valid_archs;
   $dbconn = pg_pconnect("service=wanna-build") or status_fail();
+
+  $result = pg_query($dbconn, "select architecture from architectures");
+  $ARCHS = pg_fetch_all_columns($result, 0);
+  pg_free_result($result);
 
   $result = pg_query($dbconn, "select * from distributions where public order by sort_order DESC");
   $SUITES = pg_fetch_all_columns($result, 0);
