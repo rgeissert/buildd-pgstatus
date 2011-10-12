@@ -43,7 +43,6 @@ $statehelp = array(
  "Needs-Build"      => "Package is queued for building, waiting for a buildd to become available",
  "Uploaded"         => "Package was built successfully and uploaded, but didn't appear yet in the archive",
  "Not-For-Us"       => "Package is marked as not-to-be-built on this architecture",
- "Failed-Removed"   => "Package does not need building on this architecture",
  );
 
 $compactstate = array(
@@ -72,7 +71,7 @@ $valid_archs = array(); // Will be filled in later.
 
 $goodstate = array("Maybe-Successful", "Built", "Installed", "Uploaded");
 $badstate = array("Failed", "Maybe-Failed", "Build-Attempted");
-$okstate = array("Failed-Removed", "Built", "Installed", "Uploaded");
+$okstate = array("Built", "Installed", "Uploaded");
 $donestate = array("Installed", "Uploaded");
 $pendingstate = array("Building", "Dep-Wait", "Needs-Build");
 $skipstates = array("overwritten-by-arch-all", "arch-all-only");
@@ -777,6 +776,9 @@ function single($info, $version, $log, $arch, $suite, $problemid) {
              urlencode($arch),
              paslink($suite));
       break;
+    case "failed-removed":
+      printf("Package does not need to build on this architecture");
+      break;
     case "absent":
     default:
       printf("No entry in %s database, check %s",
@@ -945,6 +947,8 @@ function buildd_status($packages, $suite, $archis=array()) {
         $info["timestamp"] = strtotime($info["state_change"]);
         if ($info["state"] == "Auto-Not-For-Us") {
           $infos[$arch] = $info["notes"];
+        } elseif ($info["state"] == "Failed-Removed") {
+          $infos[$arch] = "failed-removed";
         } else {
           $infos[$arch] = $info;
         }
