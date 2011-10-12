@@ -505,7 +505,7 @@ function build_log_link($package, $arch, $version, $timestamp, $text) {
 function logpath($pkg, $ver, $arch, $stamp) {
   return sprintf("%s/db/%s/%s/%s/%s_%s_log.bz2",
 		 BUILDD_DIR,
-		 safe_get($pkg, 0, ""),
+		 $pkg[0],
 		 $pkg,
 		 $ver,
 		 $arch,
