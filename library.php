@@ -87,7 +87,7 @@ function db_connect() {
   global $dbconn, $ARCHS, $SUITES, $ALIASES, $valid_archs;
   $dbconn = pg_pconnect("service=wanna-build") or status_fail();
 
-  $result = pg_query($dbconn, "select architecture from architectures");
+  $result = pg_query($dbconn, "select architecture from architectures order by architecture asc");
   $ARCHS = pg_fetch_all_columns($result, 0);
   pg_free_result($result);
 
