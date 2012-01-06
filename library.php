@@ -572,6 +572,10 @@ function pkg_state_class($state) {
     return $class;
 }
 
+function is_buildd($name) {
+  return preg_match("@buildd_.*-.*@", $name);
+}
+
 function buildd_name($name) {
   return preg_replace('/buildd_(kfreebsd-|hurd-)?[^-]*-/', '', $name);
 }
@@ -1023,6 +1027,9 @@ function buildd_status($packages, $suite, $archis=array()) {
       // Maintainer/Porter upload
       if ($log == "no log" && in_array($info["state"], $donestate)) $info["builder"] = "none";
 
+      // Do not display buildds that are user logins
+      if (!is_buildd($info["builder"])) $info["builder"] = "";
+
       if ($info["state"] == "Installed" && $log == "no log") $info["timestamp"] = "";
       pkg_history($package, $version, $arch, $suite);
 
@@ -1078,7 +1085,7 @@ function buildds_overview_link($arch, $suite, $current_buildd="") {
   if (is_array($list))
     foreach($list as $buildd) {
       $name = $buildd["username"];
-      if ($name == "buildd_${arch}") continue;
+      if ($name == "buildd_${arch}" || !is_buildd($name)) continue;
       if ($name != $current_buildd)
         $name = pkg_buildd($buildd["username"], $suite, $arch);
       else
