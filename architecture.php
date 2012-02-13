@@ -38,7 +38,7 @@ echo "<div style=\"text-align: right\">";
 select_suite($packages, $suite);
 echo "</div><br />";
 
-alert_if_neq("architecture", $arch, safe_get($_GET, "a"));
+alert_if_neq("architecture", $arch, htmlspecialchars(safe_get($_GET, "a")));
 
 archs_overview_links($suite, $arch);
 
