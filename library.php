@@ -859,16 +859,6 @@ function touch_array(&$array) {
     $array = array();
 }
 
-function factorize_issues_by_arch($issues) {
-  $found = array();
-  foreach ($issues as $issue) {
-    list($arch, $version, $timestamp, $message, $problemid) = $issue;
-    touch_array($found[$message]);
-    array_push($found[$message], array($arch, $version, $timestamp, $problemid));
-  }
-  return $found;
-}
-
 function buildd_failures($problems, $pas, $suite) {
   if (!empty($pas)) {
     $message = shell_exec(sprintf("egrep \"^%%?(%s):\" %s",
@@ -881,7 +871,6 @@ function buildd_failures($problems, $pas, $suite) {
   }
   foreach($problems as $package => $issues) {
     foreach($issues as $reason => $list) {
-      $list = factorize_issues_by_arch($list);
       foreach ($list as $message => $issue) {
         $archs_data = array();
         foreach ($issue as $data) {
@@ -915,9 +904,9 @@ function report_problem(&$problems, $package, $arch, $category, $message, $versi
   if (strlen($message) <= 1) return;
   global $idcounter;
   $idcounter++;
-  touch_array($problems[$package][$category]);
-  array_push($problems[$package][$category],
-	     array($arch, $version, $timestamp, $message, $idcounter));
+  touch_array($problems[$package][$category][$message]);
+  array_push($problems[$package][$category][$message],
+	     array($arch, $version, $timestamp, $idcounter));
   return $idcounter;
 }
 
