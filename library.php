@@ -845,6 +845,30 @@ function detect_links($message) {
   return $message;
 }
 
+function make_list($list, $sep=", ", $last_sep=" and ") {
+  $last = array_pop($list);
+  if (empty($list)) {
+    return $last;
+  } else {
+    return sprintf("%s%s%s", implode($sep, $list), $last_sep, $last);
+  }
+}
+
+function touch_array(&$array) {
+  if (!isset($array) || !is_array($array))
+    $array = array();
+}
+
+function factorize_issues_by_arch($issues) {
+  $found = array();
+  foreach ($issues as $issue) {
+    list($arch, $version, $timestamp, $message, $problemid) = $issue;
+    touch_array($found[$message]);
+    array_push($found[$message], array($arch, $version, $timestamp, $problemid));
+  }
+  return $found;
+}
+
 function buildd_failures($problems, $pas, $suite) {
   if (!empty($pas)) {
     $message = shell_exec(sprintf("egrep \"^%%?(%s):\" %s",
@@ -857,28 +881,34 @@ function buildd_failures($problems, $pas, $suite) {
   }
   foreach($problems as $package => $issues) {
     foreach($issues as $reason => $list) {
-      foreach ($list as $issue) {
-	list($arch, $version, $timestamp, $message, $problemid) = $issue;
+      $list = factorize_issues_by_arch($list);
+      foreach ($list as $message => $issue) {
+        $archs_data = array();
+        foreach ($issue as $data) {
+          list($arch, $version, $timestamp, $problemid) = $data;
+          if (empty($version) || empty($timestamp)) {
+            array_push($archs_data, sprintf("<span id=\"problem-%d\">%s</span>", $problemid, $arch));
+          } else {
+            array_push($archs_data, sprintf("<span id=\"problem-%d\">%s</span>", $problemid, build_log_link($package, $arch, $version, $timestamp, $arch)));
+          }
+        }
         $extra = "";
-        if ($reason == "tail of log") $extra = build_log_link($package, $arch, $version, $timestamp, "(more)");
+        if ($reason == "tail of log" && count($archs_data) == 1) {
+          $extra = build_log_link($package, $issue[0][0], $issue[0][1], $issue[0][2], "(more)");
+        }
 	$message = detect_links(htmlentities($message));
 	printf("<p><b>%s for <a href=\"package.php?p=%s&amp;suite=%s\">%s</a> on %s:</b></p>\n<pre id=\"problem-%d\" class=\"failure\">%s%s</pre>\n",
                ucfirst($reason),
                urlencode($package),
                $suite,
 	       $package,
-	       $arch,
+	       make_list($archs_data),
                $problemid,
 	       $message,
                $extra);
       }
     }
   }
-}
-
-function touch_array(&$array) {
-  if (!isset($array) || !is_array($array))
-    $array = array();
 }
 
 function report_problem(&$problems, $package, $arch, $category, $message, $version="", $timestamp="") {
