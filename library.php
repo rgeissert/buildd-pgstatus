@@ -860,7 +860,7 @@ function buildd_failures($problems, $pas, $suite) {
       foreach ($list as $issue) {
 	list($arch, $version, $timestamp, $message, $problemid) = $issue;
         $extra = "";
-        if ($reason == "tail of logs") $extra = build_log_link($package, $arch, $version, $timestamp, "(more)");
+        if ($reason == "tail of log") $extra = build_log_link($package, $arch, $version, $timestamp, "(more)");
 	$message = detect_links(htmlentities($message));
 	printf("<p><b>%s for <a href=\"package.php?p=%s&amp;suite=%s\">%s</a> on %s:</b></p>\n<pre id=\"problem-%d\" class=\"failure\">%s%s</pre>\n",
                ucfirst($reason),
@@ -1020,7 +1020,7 @@ function buildd_status($packages, $suite, $archis=array()) {
         $last_failed = in_array($info["state"], $pendingstate);
 
 	if (in_array($info["state"], $badstate)) {
-	  $reason = "tail of logs";
+	  $reason = "tail of log";
 	  $tail = tailoflog($package, $version, $arch, $timestamp);
 	  $problemid = report_problem($problems, $package, $arch, $reason, $tail, $version, $timestamp);
 	}
