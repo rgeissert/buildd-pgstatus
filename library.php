@@ -858,16 +858,19 @@ function buildd_failures($problems, $pas, $suite) {
   foreach($problems as $package => $issues) {
     foreach($issues as $reason => $list) {
       foreach ($list as $issue) {
-	list($arch, $message, $problemid) = $issue;
+	list($arch, $version, $timestamp, $message, $problemid) = $issue;
+        $extra = "";
+        if ($reason == "tail of logs") $extra = build_log_link($package, $arch, $version, $timestamp, "(more)");
 	$message = detect_links(htmlentities($message));
-	printf("<p><b>%s for <a href=\"package.php?p=%s&amp;suite=%s\">%s</a> on %s:</b></p>\n<pre id=\"problem-%d\" class=\"failure\">%s</pre>\n",
+	printf("<p><b>%s for <a href=\"package.php?p=%s&amp;suite=%s\">%s</a> on %s:</b></p>\n<pre id=\"problem-%d\" class=\"failure\">%s%s</pre>\n",
                ucfirst($reason),
                urlencode($package),
                $suite,
 	       $package,
 	       $arch,
                $problemid,
-	       $message);
+	       $message,
+               $extra);
       }
     }
   }
@@ -878,13 +881,13 @@ function touch_array(&$array) {
     $array = array();
 }
 
-function report_problem(&$problems, $package, $arch, $category, $message) {
+function report_problem(&$problems, $package, $arch, $category, $message, $version="", $timestamp="") {
   if (strlen($message) <= 1) return;
   global $idcounter;
   $idcounter++;
   touch_array($problems[$package][$category]);
   array_push($problems[$package][$category],
-	     array($arch, $message, $idcounter));
+	     array($arch, $version, $timestamp, $message, $idcounter));
   return $idcounter;
 }
 
@@ -1019,7 +1022,7 @@ function buildd_status($packages, $suite, $archis=array()) {
 	if (in_array($info["state"], $badstate)) {
 	  $reason = "tail of logs";
 	  $tail = tailoflog($package, $version, $arch, $timestamp);
-	  $problemid = report_problem($problems, $package, $arch, $reason, $tail);
+	  $problemid = report_problem($problems, $package, $arch, $reason, $tail, $version, $timestamp);
 	}
         $log = loglink($package, $version, $arch, $timestamp, $count, $last_failed);
       }
