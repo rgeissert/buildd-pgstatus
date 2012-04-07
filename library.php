@@ -847,7 +847,7 @@ function detect_links($message) {
 
 function buildd_failures($problems, $pas, $suite) {
   if (!empty($pas)) {
-    $message = shell_exec(sprintf("egrep \"%s\" %s",
+    $message = shell_exec(sprintf("egrep \"^%%?(%s):\" %s",
                                   implode("|", $pas),
                                   paspath($suite)));
     if (!empty($message))
