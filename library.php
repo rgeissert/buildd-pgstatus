@@ -928,13 +928,24 @@ function buildd_failures($problems, $pas, $suite) {
           $message = tailoflog($package, $version, $arch, $timestamp);
           $extra = build_log_link($package, $arch, $version, $timestamp, "(more)");
         }
+        $archs = "";
+        if ($reason == "tail of log") {
+          $first = array_shift($archs_data);
+          if (count($archs_data) == 0) {
+            $archs = $first;
+          } else {
+            $archs = sprintf("%s (other failed builds: %s)", $first, make_list($archs_data));
+          }
+        } else {
+          $archs = make_list($archs_data);
+        }
 	$message = detect_links(htmlentities($message));
 	printf("<p><b>%s for <a href=\"package.php?p=%s&amp;suite=%s\">%s</a> on %s:</b></p>\n<pre id=\"problem-%d\" class=\"failure\">%s%s</pre>\n",
                ucfirst($reason),
                urlencode($package),
                $suite,
 	       $package,
-	       make_list($archs_data),
+	       $archs,
                $problemid,
 	       $message,
                $extra);
