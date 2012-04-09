@@ -916,7 +916,7 @@ function buildd_failures($problems, $pas, $suite) {
         $archs_data = array();
         foreach ($issue as $data) {
           list($arch, $version, $timestamp, $problemid) = $data;
-          if (empty($version) || empty($timestamp)) {
+          if (empty($version) || empty($timestamp) || $reason == "failing reason") {
             array_push($archs_data, sprintf("<span id=\"problem-%d\">%s</span>", $problemid, $arch));
           } else {
             array_push($archs_data, sprintf("<span id=\"problem-%d\">%s</span>", $problemid, build_log_link($package, $arch, $version, $timestamp, $arch)));
@@ -1054,18 +1054,6 @@ function buildd_status($packages, $suite, $archis=array()) {
       if (in_array($info, $passtates) && !in_array($package, $pas))
         array_push($pas, $package);
 
-      if (in_array($info["state"], $badstate)) {
-          $reason = "failing reason";
-          if (is_array($info) && strlen($info["failed"]) > 1)
-            $problemid = report_problem($problems, $package, $arch, $reason, $info["failed"]);
-      }
-
-      if (in_array($info["state"], array("Dep-Wait", "BD-Uninstallable"))) {
-        $reason = "dependency installability problem";
-        if (is_array($info) && !empty($info["bd_problem"]))
-          $problemid = report_problem($problems, $package, $arch, $reason, $info["bd_problem"]);
-      }
-
       $version = pkg_version($info["version"], $info["binary_nmu_version"]);
 
       $log = "no log";
@@ -1073,6 +1061,18 @@ function buildd_status($packages, $suite, $archis=array()) {
       if (is_array($info) && $count >= 1 && $info["state"] != "Auto-Not-For-Us") {
         $timestamp = $logs[0]["timestamp"];
         $lastchange = $info["timestamp"];
+
+        if (in_array($info["state"], $badstate)) {
+          $reason = "failing reason";
+          if (is_array($info) && strlen($info["failed"]) > 1)
+            $problemid = report_problem($problems, $package, $arch, $reason, $info["failed"], $version, $timestamp);
+        }
+
+        if (in_array($info["state"], array("Dep-Wait", "BD-Uninstallable"))) {
+          $reason = "dependency installability problem";
+          if (is_array($info) && !empty($info["bd_problem"]))
+            $problemid = report_problem($problems, $package, $arch, $reason, $info["bd_problem"]);
+        }
 
         if (in_array($info["state"], $pendingstate) && $timestamp > $lastchange) {
           if (isset($logs[0]["result"])) $info["state"] = "Maybe-".ucfirst($logs[0]["result"]);
