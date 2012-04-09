@@ -925,6 +925,7 @@ function buildd_failures($problems, $pas, $suite) {
         $extra = "";
         if ($reason == "tail of log") {
           list($arch, $version, $timestamp, $problemid) = $issue[0];
+          $message = tailoflog($package, $version, $arch, $timestamp);
           $extra = build_log_link($package, $arch, $version, $timestamp, "(more)");
         }
 	$message = detect_links(htmlentities($message));
@@ -1082,8 +1083,7 @@ function buildd_status($packages, $suite, $archis=array()) {
 
 	if (in_array($info["state"], $badstate)) {
 	  $reason = "tail of log";
-	  $tail = tailoflog($package, $version, $arch, $timestamp);
-	  $problemid = report_problem($problems, $package, $arch, $reason, $tail, $version, $timestamp);
+	  $problemid = report_problem($problems, $package, $arch, $reason, $timestamp, $version, $timestamp);
 	}
         $log = loglink($package, $version, $arch, $timestamp, $count, $last_failed);
       }
