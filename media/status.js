@@ -1,6 +1,6 @@
 /*
   Copyright © 2009 Stéphane Glondu <steph@glondu.net>
-  Copyright © 2009 Mehdi Dogguy <dogguy@pps.jussieu.fr>
+  Copyright © 2009-2012 Mehdi Dogguy <mehdi@debian.org>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
