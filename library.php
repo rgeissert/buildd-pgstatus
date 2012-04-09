@@ -859,6 +859,46 @@ function touch_array(&$array) {
     $array = array();
 }
 
+// This function is ugly. Any idea to improve the handling of failures
+// is welcome. See also next function.
+function factorize_issues(&$problems) {
+  $equiv = array();
+  // factorize "failing reason" issues
+  foreach($problems as $package => $issues) {
+    if (isset($issues["failing reason"])) {
+      $list = $issues["failing reason"];
+      foreach($list as $message => $issues) {
+        $first = array_shift($issues);
+        $arch = $first[0];
+        touch_array($equiv[$package][$arch]);
+        foreach($issues as $key => $issue) {
+          array_push($equiv[$package][$arch], $issue);
+        }
+      }
+    }
+  }
+  // factorize "tail of log" issues
+  foreach($problems as $package => $issues) {
+    if (isset($issues["tail of log"])) {
+      $list = $issues["tail of log"];
+      foreach($list as $message => $issues) {
+        foreach($issues as $key => $issue) {
+          list($arch, $version, $timestamp, $problemid) = $issue;
+          if (isset($equiv[$package][$arch])) {
+            $problems[$package]["tail of log"][$message] =
+              array_merge(
+                          $problems[$package]["tail of log"][$message],
+                          $equiv[$package][$arch]
+                          );
+          } else {
+            unset($problems[$package]["tail of log"][$message]);
+          }
+        }
+      }
+    }
+  }
+}
+
 function buildd_failures($problems, $pas, $suite) {
   if (!empty($pas)) {
     $message = shell_exec(sprintf("egrep \"^%%?(%s):\" %s",
@@ -869,6 +909,7 @@ function buildd_failures($problems, $pas, $suite) {
              paslink($suite),
              detect_links(htmlentities($message)));
   }
+  factorize_issues($problems);
   foreach($problems as $package => $issues) {
     foreach($issues as $reason => $list) {
       foreach ($list as $message => $issue) {
@@ -883,7 +924,8 @@ function buildd_failures($problems, $pas, $suite) {
         }
         $extra = "";
         if ($reason == "tail of log" && count($archs_data) == 1) {
-          $extra = build_log_link($package, $issue[0][0], $issue[0][1], $issue[0][2], "(more)");
+          list($arch, $version, $timestamp, $problemid) = $issue[0];
+          $extra = build_log_link($package, $arch, $version, $timestamp, "(more)");
         }
 	$message = detect_links(htmlentities($message));
 	printf("<p><b>%s for <a href=\"package.php?p=%s&amp;suite=%s\">%s</a> on %s:</b></p>\n<pre id=\"problem-%d\" class=\"failure\">%s%s</pre>\n",
