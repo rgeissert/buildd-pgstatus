@@ -944,10 +944,10 @@ function buildd_failures($problems, $pas, $suite) {
                ucfirst($reason),
                urlencode($package),
                $suite,
-	       $package,
-	       $archs,
+               $package,
+               $archs,
                $problemid,
-	       $message,
+               $message,
                $extra);
       }
     }
