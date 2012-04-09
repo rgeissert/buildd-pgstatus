@@ -863,6 +863,7 @@ function touch_array(&$array) {
 // is welcome. See also next function.
 function factorize_issues(&$problems) {
   $equiv = array();
+  $to_skip = array();
   // factorize "failing reason" issues
   foreach($problems as $package => $issues) {
     if (isset($issues["failing reason"])) {
@@ -871,8 +872,10 @@ function factorize_issues(&$problems) {
         $first = array_shift($issues);
         $arch = $first[0];
         touch_array($equiv[$package][$arch]);
+        touch_array($to_skip[$package]);
         foreach($issues as $key => $issue) {
           array_push($equiv[$package][$arch], $issue);
+          array_push($to_skip[$package], $issue[0]);
         }
       }
     }
@@ -890,7 +893,7 @@ function factorize_issues(&$problems) {
                           $problems[$package]["tail of log"][$message],
                           $equiv[$package][$arch]
                           );
-          } else {
+          } else if (in_array($arch, $to_skip[$package])) {
             unset($problems[$package]["tail of log"][$message]);
           }
         }
