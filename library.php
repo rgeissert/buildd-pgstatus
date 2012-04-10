@@ -1071,6 +1071,12 @@ function buildd_status($packages, $suite, $archis=array()) {
 
       $version = pkg_version($info["version"], $info["binary_nmu_version"]);
 
+      if (in_array($info["state"], array("Dep-Wait", "BD-Uninstallable"))) {
+        $reason = "dependency installability problem";
+        if (is_array($info) && !empty($info["bd_problem"]))
+          $problemid = report_problem($problems, $package, $arch, $reason, $info["bd_problem"]);
+      }
+
       $log = "no log";
       list($count, $logs) = pkg_history($package, $version, $arch, $suite);
       if (is_array($info) && $count >= 1 && $info["state"] != "Auto-Not-For-Us") {
@@ -1081,12 +1087,6 @@ function buildd_status($packages, $suite, $archis=array()) {
           $reason = "failing reason";
           if (is_array($info) && strlen($info["failed"]) > 1)
             $problemid = report_problem($problems, $package, $arch, $reason, $info["failed"], $version, $timestamp);
-        }
-
-        if (in_array($info["state"], array("Dep-Wait", "BD-Uninstallable"))) {
-          $reason = "dependency installability problem";
-          if (is_array($info) && !empty($info["bd_problem"]))
-            $problemid = report_problem($problems, $package, $arch, $reason, $info["bd_problem"]);
         }
 
         if (in_array($info["state"], $pendingstate) && $timestamp > $lastchange) {
