@@ -929,7 +929,8 @@ function buildd_failures($problems, $pas, $suite) {
         if ($reason == "tail of log") {
           list($arch, $version, $timestamp, $problemid) = $issue[0];
           $message = tailoflog($package, $version, $arch, $timestamp);
-          $extra = build_log_link($package, $arch, $version, $timestamp, "(more)");
+          if (empty($message))
+            continue;
         }
         $archs = "";
         if ($reason == "tail of log") {
