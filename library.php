@@ -510,20 +510,15 @@ function loglink($package, $version, $arch, $timestamp, $count, $failed) {
   global $pendingstate;
   $log = "";
   $old = logs_link($package, $arch);
-  $all = sprintf("<a href=\"logs.php?pkg=%s&amp;arch=%s&amp;ver=%s\">all (%d)</a>",
-                 urlencode($package),
-                 urlencode($arch),
-                 urlencode($version),
-                 htmlentities($count)
-                 );
+  $all = logs_link($package, $arch, $version, sprintf("all (%d)", htmlentities($count)));
   if (empty($timestamp) || $count == 0)
     $log = "no log";
-  else {
-    $text = "last log";
-    if ($failed) $text = "<span class=\"red\">$text</span>";
+  else if ($failed) {
+    $text = "<span class=\"red\">last log</span>";
     $log = build_log_link($package, $arch, $version, $timestamp, $text);
+    $log = " | " . $log;
   }
-  return sprintf("%s | %s | %s", $old, $all, $log);
+  return sprintf("%s | %s%s", $old, $all, $log);
 }
 
 function build_log_link($package, $arch, $version, $timestamp, $text) {
