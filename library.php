@@ -603,14 +603,22 @@ function pkg_state($status, $state) {
     return $state;
 }
 
-function pkg_status($status) {
+function have_a_log($info) {
+  global $goodstate, $badstate;
+  return is_array($info)
+    && in_array($info["state"], array_merge($goodstate, $badstate))
+    && $info["builder"] != "none"
+    && isset($info["real_timestamp"]);
+}
+
+function pkg_status($status, $info=array()) {
   global $compact , $compactstate;
-  if ($compact == FALSE)
-    return $status;
-  else {
-    $status = preg_replace("/ .*$/", "", $status);
-    return $compactstate[$status];
-  }
+  $text = $status;
+  if ($compact)
+    $text = $compactstate[preg_replace("/ .*$/", "", $text)];
+  if (have_a_log($info))
+    $text = build_log_link($info["package"], $info["architecture"], $info["version"], $info["real_timestamp"], $text);
+  return $text;
 }
 
 function section_area($section) {
@@ -747,6 +755,7 @@ function single($info, $version, $log, $arch, $suite, $problemid) {
   $state = $info["state"];
   if ($state == "Dep-Wait" && !empty($info["depends"]))
     $state .= " (" . $info["depends"] . ")";
+  $log_link = "";
   if (is_array($info)) {
     $misc = sprintf("%s:%s", $info["section"], $info["priority"]);
     printf("<tr><td>%s</td><td>%s</td><td %s class=\"status %s\" title=\"%s\">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
@@ -755,7 +764,7 @@ function single($info, $version, $log, $arch, $suite, $problemid) {
            ($problemid ? "id=\"status-" . $problemid. "\"" : ""),
            pkg_state_class($info["state"]),
            $statehelp[$info["state"]],
-           pkg_status($state),
+           pkg_status($state, $info),
            date_diff_short($info["timestamp"]),
            pkg_buildd($info["builder"], $suite, $arch),
            pkg_state($info["state"], $info["notes"]),
@@ -810,7 +819,7 @@ function multi($info, $version, $log, $arch, $suite, $problemid) {
            pkg_state_help($info["state"], $info["notes"]),
            ($info["state"] == "Dep-Wait" && !empty($info["depends"]) ?
              "\n".$info["depends"] : ""),
-           pkg_status($info["state"]));
+           pkg_status($info["state"], $info));
   } else {
     printf("<td><i>%s</i></td>\n", ($compact ? "" : "not in w-b"));
   }
@@ -1100,6 +1109,7 @@ function buildd_status($packages, $suite, $archis=array()) {
 	  $reason = "tail of log";
 	  $problemid = report_problem($problems, $package, $arch, $reason, $timestamp, $version, $timestamp);
 	}
+        $info["real_timestamp"] = $timestamp;
         $log = loglink($package, $version, $arch, $timestamp, $count, $last_failed);
       }
 

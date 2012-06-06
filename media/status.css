@@ -30,6 +30,10 @@ div.alert {
     color: inherit;
 }
 
+.status a:visited {
+    color: inherit;
+}
+
 .status-installed,
 .status-uploaded {
     background-color: #7fffd4;
