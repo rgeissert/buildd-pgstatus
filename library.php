@@ -611,8 +611,10 @@ function pkg_status($status, $info=array()) {
   $text = $status;
   if ($compact)
     $text = $compactstate[preg_replace("/ .*$/", "", $text)];
-  if (have_a_log($info))
-    $text = build_log_link($info["package"], $info["architecture"], $info["version"], $info["real_timestamp"], $text);
+  if (have_a_log($info)) {
+    $version = pkg_version($info["version"], $info["binary_nmu_version"]);
+    $text = build_log_link($info["package"], $info["architecture"], $version, $info["real_timestamp"], $text);
+  }
   return $text;
 }
 
