@@ -902,7 +902,7 @@ function factorize_issues(&$problems) {
                           $problems[$package]["tail of log"][$message],
                           $equiv[$package][$arch]
                           );
-          } else if (is_array($to_skip[$package]) && in_array($arch, $to_skip[$package])) {
+          } else if (isset($to_skip[$package]) && is_array($to_skip[$package]) && in_array($arch, $to_skip[$package])) {
             unset($problems[$package]["tail of log"][$message]);
           }
         }
