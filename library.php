@@ -1084,6 +1084,11 @@ function buildd_status($packages, $suite, $archis=array()) {
           $problemid = report_problem($problems, $package, $arch, $reason, $info["bd_problem"]);
       }
 
+      if (is_array($info) && !empty($info["binary_nmu_changelog"])) {
+        $reason = "binNMU changelog";
+        report_problem($problems, $package, $arch, $reason, $info["binary_nmu_changelog"]);
+      }
+
       $log = "no log";
       list($count, $logs) = pkg_history($package, $version, $arch, $suite);
       if (is_array($info) && $count >= 1 && $info["state"] != "Auto-Not-For-Us") {
