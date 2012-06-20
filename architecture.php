@@ -77,7 +77,12 @@ while ($info = pg_fetch_assoc($results)) {
       $timestamp = $logs[0]["timestamp"];
       $lastchange = strtotime($info["state_change"]);
       if (in_array($info["state"], $pendingstate) && $timestamp > $lastchange) {
-        if (isset($logs[0]["result"])) $state = "Maybe-".ucfirst($logs[0]["result"]);
+        if (isset($logs[0]["result"])) {
+          $counts[$state]--;
+          $state = "Maybe-".ucfirst($logs[0]["result"]);
+          if (!isset ($counts[$state])) $counts[$state] = 0;
+          $counts[$state]++;
+        }
         $info["state_change"] = $logs[0]["date"];
       }
     }
