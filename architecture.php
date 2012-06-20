@@ -49,7 +49,7 @@ notes_overview_link($arch, $suite, $notes);
 echo "<p>The time indicates for how long a package is in the given state.</p>";
 
 $query =
-  "select package, version, state, state_change, section, builder from \""
+  "select package, version, state, state_change, section, builder, binary_nmu_version from \""
   .$arch."_public\".packages where distribution like '$suite'";
 if (!empty($buildd)) $query .= " and builder like '$buildd'";
 if (!empty($notes)) $query .= " and notes like '$notes'";
@@ -87,6 +87,10 @@ while ($info = pg_fetch_assoc($results)) {
       }
     }
     if (!in_array($state, array("Failed-Removed", "Not-For-Us", "Auto-Not-For-Us"))) {
+      $binnmu = "";
+      if ($info["binary_nmu_version"] > 0) {
+        $binnmu = sprintf("+b%d, ", $info["binary_nmu_version"]);
+      }
       list($days, $duration) = date_diff_details($time, strtotime($info["state_change"]));
       if (!in_array($state, $nocolor_states)) {
 	  if ($days > 21)
@@ -95,7 +99,7 @@ while ($info = pg_fetch_assoc($results)) {
 	    $duration = "<span class=\"orange\">$duration</span>";
       }
       $link = sprintf("<a href=\"package.php?p=%s&amp;suite=%s\">%s</a>", urlencode($info["package"]), $suite, htmlentities($info["package"]));
-      $text .= sprintf("%s (%s", $link, $duration);
+      $text .= sprintf("%s (%s%s", $link, $binnmu, $duration);
       if ($count > 1 && $state != "BD-Uninstallable") $text .= ", <strong>tried $count times</strong>";
       $text .= default_area($info["section"]);
       if (!empty($info["builder"]))
