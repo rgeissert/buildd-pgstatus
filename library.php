@@ -1084,7 +1084,7 @@ function buildd_status($packages, $suite, $archis=array()) {
           $problemid = report_problem($problems, $package, $arch, $reason, $info["bd_problem"]);
       }
 
-      if (is_array($info) && !empty($info["binary_nmu_changelog"])) {
+      if (is_array($info) && !empty($info["binary_nmu_changelog"]) && $info["binary_nmu_version"] != 0) {
         $reason = "binNMU changelog";
         report_problem($problems, $package, $arch, $reason, $info["binary_nmu_changelog"]);
       }
