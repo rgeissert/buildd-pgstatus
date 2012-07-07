@@ -154,7 +154,7 @@ function string_query($package, $suite, $fields="", $extra="") {
 function log_query_arch($pkg, $arch, $ver="") {
   return sprintf("SELECT '%s'::character varying AS arch, CAST (version AS debversion) AS debversion, *
                   FROM \"%s_public\".pkg_history
-                  WHERE package LIKE '%s'
+                  WHERE package = '%s'
                   %s",
 		 $arch, $arch, $pkg, $ver);
 }
@@ -162,7 +162,7 @@ function log_query_arch($pkg, $arch, $ver="") {
 function log_query($pkg, $archs, $ver) {
   global $ARCHS;
   if (empty($archs)) $archs = $ARCHS;
-  if (!empty($ver)) $ver = sprintf(" AND version LIKE '%s'", $ver);
+  if (!empty($ver)) $ver = sprintf(" AND version = '%s'", $ver);
   $query = log_query_arch($pkg, array_shift($archs), $ver);
   foreach($archs as $arch) {
     $query .= sprintf(" UNION %s", log_query_arch($pkg, $arch, $ver));
@@ -438,7 +438,7 @@ function pkg_history($pkg, $ver, $arch, $suite) {
   global $dbconn;
   $package = pg_escape_string($dbconn, $pkg);
   $format = "select * from \"%s_public\".pkg_history
-      where package like '%s' and distribution like '%s' and version like '%s'
+      where package = '%s' and distribution = '%s' and version = '%s'
       order by timestamp desc";
   $query = sprintf($format, $arch, $package, $suite, $ver);
   $result = pg_query($dbconn, $query);
@@ -457,7 +457,7 @@ function pkg_history($pkg, $ver, $arch, $suite) {
 function buildd_list($arch, $suite) {
   global $dbconn;
   $format = "select username from \"%s_public\".users
-      where distribution like '%s'
+      where distribution = '%s'
       order by username asc";
   $query = sprintf($format, $arch, $suite);
   $result = pg_query($dbconn, $query);

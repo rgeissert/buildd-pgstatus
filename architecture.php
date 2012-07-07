@@ -50,9 +50,9 @@ echo "<p>The time indicates for how long a package is in the given state.</p>";
 
 $query =
   "select package, version, state, state_change, section, builder, binary_nmu_version from \""
-  .$arch."_public\".packages where distribution like '$suite'";
-if (!empty($buildd)) $query .= " and builder like '$buildd'";
-if (!empty($notes)) $query .= " and notes like '$notes'";
+  .$arch."_public\".packages where distribution = '$suite'";
+if (!empty($buildd)) $query .= " and builder = '$buildd'";
+if (!empty($notes)) $query .= " and notes = '$notes'";
 
 $query .= " order by state_change asc";
 
