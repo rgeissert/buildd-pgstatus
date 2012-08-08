@@ -1231,6 +1231,7 @@ function html_header($subtitle="Buildd information pages", $js=false, $raw=false
 
   echo "
 <script type=\"text/javascript\">
+<!--
 $(document).ready(function () {
   $(\"#pkg_field\").focus();
 
@@ -1246,6 +1247,7 @@ $(document).ready(function () {
     }
   });
 });
+//-->
 </script>
 ";
 
