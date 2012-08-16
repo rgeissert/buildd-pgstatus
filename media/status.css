@@ -5,6 +5,10 @@ body {
     background-color: white;
 }
 
+h3 {
+    font-size: 1em;
+}
+
 a:link {
     color: blue;
 }

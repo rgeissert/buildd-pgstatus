@@ -926,9 +926,9 @@ function buildd_failures($problems, $pas, $suite) {
         foreach ($issue as $data) {
           list($arch, $version, $timestamp, $problemid) = $data;
           if (empty($version) || empty($timestamp) || $reason == "failing reason") {
-            array_push($archs_data, sprintf("<span id=\"problem-%d\">%s</span>", $problemid, $arch));
+            array_push($archs_data, $arch);
           } else {
-            array_push($archs_data, sprintf("<span id=\"problem-%d\">%s</span>", $problemid, build_log_link($package, $arch, $version, $timestamp, $arch)));
+            array_push($archs_data, build_log_link($package, $arch, $version, $timestamp, $arch));
           }
         }
         $extra = "";
@@ -950,13 +950,13 @@ function buildd_failures($problems, $pas, $suite) {
           $archs = make_list($archs_data);
         }
 	$message = detect_links(htmlentities($message));
-	printf("<p><b>%s for <a href=\"package.php?p=%s&amp;suite=%s\">%s</a> on %s:</b></p>\n<pre id=\"problem-%d\" class=\"failure\">%s%s</pre>\n",
+	printf("<h3 id=\"problem-%d\">%s for <a href=\"package.php?p=%s&amp;suite=%s\">%s</a> on %s:</h3>\n<pre class=\"failure\">%s%s</pre>\n",
+               $problemid,
                ucfirst($reason),
                urlencode($package),
                $suite,
                $package,
                $archs,
-               $problemid,
                $message,
                $extra);
       }
