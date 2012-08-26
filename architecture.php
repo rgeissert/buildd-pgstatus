@@ -46,6 +46,8 @@ buildds_overview_link($arch, $suite, $buildd);
 
 notes_overview_link($arch, $suite, $notes);
 
+buildds_machine_info($arch, $suite, $buildd);
+
 echo "<p>The time indicates for how long a package is in the given state.</p>";
 
 $query =

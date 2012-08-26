@@ -590,6 +590,14 @@ function pkg_buildd($buildd, $suite, $arch) {
                  htmlentities($name));
 }
 
+function buildd_machine_link($buildd) {
+  if ($buildd == "none") return $buildd;
+  $name = buildd_name($buildd);
+  return sprintf("<a href=\"https://db.debian.org/machines.cgi?host=%s\">%s</a>",
+                 urlencode($name),
+                 htmlentities($name));
+}
+
 function pkg_state($status, $state) {
   global $goodstate;
   if (in_array($status, $goodstate))
@@ -1181,6 +1189,21 @@ function buildds_overview_link($arch, $suite, $current_buildd="") {
         $name = pkg_buildd($buildd["username"], $suite, $arch);
       else
         $name = "<strong>" . buildd_name($name) . "</strong>";
+      printf(" [%s] ", $name);
+    }
+  echo "<br />";
+}
+
+function buildds_machine_info($arch, $suite, $current_buildd="") {
+  $list = buildd_list($arch, $suite);
+  echo "Buildd machine info: ";
+  if (is_array($list))
+    foreach($list as $buildd) {
+      $name = $buildd["username"];
+      if ($name == "buildd_${arch}" || !is_buildd($name)) continue;
+      $name = buildd_machine_link($buildd["username"]);
+      if ($name == $current_buildd)
+        $name = "<strong>" . $name . "</strong>";
       printf(" [%s] ", $name);
     }
   echo "<br />";
