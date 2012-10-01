@@ -1196,8 +1196,17 @@ function buildds_overview_link($arch, $suite, $current_buildd="") {
 
 function buildds_machine_info($arch, $suite, $current_buildd="") {
   $list = buildd_list($arch, $suite);
-  echo "Buildd machine info: ";
-  if (is_array($list))
+  $official_buildds = @file_get_contents(sprintf("%s/etc/official-buildds", BUILDD_DIR));
+  if ($official_buildds !== FALSE) {
+    $official_buildds = explode("\n", $official_buildds);
+    $list = array_filter($list,
+      function ($element) use ($official_buildds, $arch) {
+        $buildd = str_replace("buildd_${arch}-", "", $element["username"]);
+        return in_array($buildd, $official_buildds);
+      });
+  }
+  if (is_array($list) && count($list) > 0) {
+    echo "Buildd machine info: ";
     foreach($list as $buildd) {
       $name = $buildd["username"];
       if ($name == "buildd_${arch}" || !is_buildd($name)) continue;
@@ -1206,7 +1215,8 @@ function buildds_machine_info($arch, $suite, $current_buildd="") {
         $name = "<strong>" . $name . "</strong>";
       printf(" [%s] ", $name);
     }
-  echo "<br />";
+    echo "<br />";
+  }
 }
 
 function notes_overview_link($arch, $suite, $current_notes="") {
