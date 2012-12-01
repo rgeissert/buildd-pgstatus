@@ -1097,19 +1097,19 @@ function buildd_status($packages, $suite, $archis=array()) {
         report_problem($problems, $package, $arch, $reason, $info["binary_nmu_changelog"]);
       }
 
+      if (in_array($info["state"], $badstate)) {
+        $reason = "failing reason";
+        if (is_array($info) && strlen($info["failed"]) > 1)
+          $problemid = report_problem($problems, $package, $arch, $reason, $info["failed"], $version, $timestamp);
+      }
+ 
       $log = "no log";
       list($count, $logs) = pkg_history($package, $version, $arch, $suite);
       if (is_array($info) && $count >= 1 && $info["state"] != "Auto-Not-For-Us") {
         $timestamp = $logs[0]["timestamp"];
         $lastchange = $info["timestamp"];
 
-        if (in_array($info["state"], $badstate)) {
-          $reason = "failing reason";
-          if (is_array($info) && strlen($info["failed"]) > 1)
-            $problemid = report_problem($problems, $package, $arch, $reason, $info["failed"], $version, $timestamp);
-        }
-
-        if (in_array($info["state"], $pendingstate) && $timestamp > $lastchange) {
+       if (in_array($info["state"], $pendingstate) && $timestamp > $lastchange) {
           if (isset($logs[0]["result"])) $info["state"] = "Maybe-".ucfirst($logs[0]["result"]);
           $info["state_change"] = $logs[0]["date"];
         }
