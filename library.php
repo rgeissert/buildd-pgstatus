@@ -223,8 +223,8 @@ function good_arch($arch) {
 }
 
 function sanitize_pkgname($package) {
-  $package = preg_replace("/([^_\/]+)([_\/].*)?/", "$1", $package);
-  return preg_replace ('/[^-[[:alnum:]%@\+\.,]/', '', $package);
+  $package = preg_replace("/([^\/]+)([\/].*)?/", "$1", $package);
+  return preg_replace ('/[^-[[:alnum:]%@\+\.,_]/', '', $package);
 }
 
 function safe_get($array, $key, $default="") {
