@@ -30,6 +30,8 @@ $ARCHS = array("amd64"); // Will be fixed later (when pg connection is establish
 $SUITES = array("sid"); // Will be fixed later (when pg connection is established)
 $ALIASES = array();
 
+$excluded_archs = array(); // To be filled by the admin
+
 $statehelp = array(
  "BD-Uninstallable" => "Package should be built, but its build dependencies cannot be fulfilled",
  "Build-Attempted"  => "A build was attempted, but it failed",
@@ -84,11 +86,15 @@ $time = time("now");
 $idcounter = 0; // Counter to generate unique id attributes
 
 function db_connect() {
-  global $dbconn, $ARCHS, $SUITES, $ALIASES, $valid_archs;
+  global $dbconn, $ARCHS, $SUITES, $ALIASES, $valid_archs, $excluded_archs;
   $dbconn = pg_pconnect("service=wanna-build") or status_fail();
 
   $result = pg_query($dbconn, "select architecture from architectures order by architecture asc");
   $ARCHS = pg_fetch_all_columns($result, 0);
+  foreach($excluded_archs as $arch) {
+    $key = array_search($arch, $ARCHS);
+    if ($key !== FALSE) unset($ARCHS[$key]);
+  }
   pg_free_result($result);
 
   $result = pg_query($dbconn, "select * from distributions where public order by sort_order DESC");
