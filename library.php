@@ -157,21 +157,22 @@ function string_query($package, $suite, $fields="", $extra="") {
   return sprintf($format, $fields, $suite, $package, $extra);
 }
 
-function log_query_arch($pkg, $arch, $ver="") {
+function log_query_arch($pkg, $arch, $ver="", $suite="") {
   return sprintf("SELECT '%s'::character varying AS arch, CAST (version AS debversion) AS debversion, *
                   FROM \"%s_public\".pkg_history
                   WHERE package = '%s'
-                  %s",
-		 $arch, $arch, $pkg, $ver);
+                  %s %s",
+		 $arch, $arch, $pkg, $ver, $suite);
 }
 
-function log_query($pkg, $archs, $ver) {
+function log_query($pkg, $archs, $ver, $suite) {
   global $ARCHS;
   if (empty($archs)) $archs = $ARCHS;
   if (!empty($ver)) $ver = sprintf(" AND version = '%s'", $ver);
-  $query = log_query_arch($pkg, array_shift($archs), $ver);
+  if (!empty($suite)) $suite = sprintf(" AND distribution = '%s'", $suite);
+  $query = log_query_arch($pkg, array_shift($archs), $ver, $suite);
   foreach($archs as $arch) {
-    $query .= sprintf(" UNION %s", log_query_arch($pkg, $arch, $ver));
+    $query .= sprintf(" UNION %s", log_query_arch($pkg, $arch, $ver, $suite));
   }
   return sprintf("%s ORDER BY debversion DESC, arch ASC, timestamp DESC", $query);
 }
@@ -305,8 +306,18 @@ function sanitize_params() {
     case "suite":
       $key = "suite";
       if (!array_key_exists($key, $_GET) || empty($_GET[$key])) $key = "dist";
-      if (array_key_exists($key, $_GET)) array_push($result, check_suite($_GET[$key]));
-      if (!array_key_exists($key, $_GET)) array_push($result, check_suite(""));
+      if (array_key_exists($key, $_GET))
+        array_push($result, check_suite($_GET[$key]));
+      else
+        array_push($result, check_suite(""));
+      break;
+    case "dist":
+      $key = "dist";
+      if (!array_key_exists($key, $_GET) || empty($_GET[$key])) $key = "suite";
+      if (array_key_exists($key, $_GET))
+        array_push($result, check_suite($_GET[$key]));
+      else
+        array_push($result, check_suite("", ""));
       break;
     case "compact":
       array_push($result, array_key_exists("compact", $_GET) && !empty($_GET["compact"]));
@@ -501,13 +512,15 @@ function logsize($size) {
   return round($size, 2).$sep.$unit;
 }
 
-function logs_link($pkg, $arch, $ver="", $text="old") {
+function logs_link($pkg, $arch, $ver="", $suite="", $text="old") {
   if (!empty($ver)) $ver = sprintf("&amp;ver=%s", urlencode($ver));
   if (!empty($arch)) $arch = sprintf("&amp;arch=%s", urlencode($arch));
-  return sprintf("<a href=\"logs.php?pkg=%s%s%s\">%s</a>",
+  if (!empty($suite)) $suite = sprintf("&amp;suite=%s", urlencode($suite));
+  return sprintf("<a href=\"logs.php?pkg=%s%s%s%s\">%s</a>",
 		 urlencode($pkg),
 		 $ver,
 		 $arch,
+		 $suite,
 		 $text
 		 );
 }
@@ -516,7 +529,7 @@ function loglink($package, $version, $arch, $timestamp, $count, $failed) {
   global $pendingstate;
   $log = "";
   $old = logs_link($package, $arch);
-  $all = logs_link($package, $arch, $version, sprintf("all (%d)", htmlentities($count)));
+  $all = logs_link($package, $arch, $version, "", sprintf("all (%d)", htmlentities($count)));
   if (empty($timestamp) || $count == 0)
     $log = "no log";
   else if ($failed) {
@@ -1138,7 +1151,7 @@ function buildd_status($packages, $suite, $archis=array()) {
       if ($info["state"] == "Installed" && $log == "no log") $info["timestamp"] = "";
       pkg_history($package, $version, $arch, $suite);
 
-      if ($log == "no log") $log = sprintf("%s | %s", logs_link($package, $arch), $log);
+      if ($log == "no log") $log = sprintf("%s | %s", logs_link($package, $arch), "", $log);
       $print($info, $version, $log, $arch, $suite, $problemid);
 
       // There is no need to repeat the same message for all selected architectures.

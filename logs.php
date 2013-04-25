@@ -23,17 +23,17 @@ require_once("library.php");
 db_connect();
 
 list($pkg, $ver, $arch, $suite, $stamp) =
-  sanitize_params("pkg", "ver", "arch", "suite", "stamp");
+  sanitize_params("pkg", "ver", "arch", "dist", "stamp");
 if (empty($arch))
   $arch = array();
 else
   $arch = array($arch);
 
 function next_version($version, $lastver, $found) {
-  global $pkg, $ver, $arch;
+  global $pkg, $ver, $arch, $suite;
   if (!$found || $version != $lastver)
     if ($version != $ver)
-      return logs_link($pkg, safe_get($arch, 0), $version, $version);
+      return logs_link($pkg, safe_get($arch, 0), $version, $suite, $version);
     else
       return $version;
   else
@@ -41,12 +41,12 @@ function next_version($version, $lastver, $found) {
 }
 
 function next_arch($archi, $lastarch, $found) {
-  global $pkg, $ver, $arch;
+  global $pkg, $ver, $arch, $suite;
   if ($found && $lastarch == $archi) return "";
   if (count($arch) > 0)
     return $archi;
   else
-    return logs_link($pkg, $archi, $ver, $archi);
+    return logs_link($pkg, $archi, $ver, $suite, $archi);
 }
 
 html_header(sprintf("Build logs for %s%s%s",
@@ -62,7 +62,7 @@ echo "<div style=\"float:right\">";
 select_logs($pkg);
 echo "</div>";
 
-pkg_links(array($pkg), "sid");
+pkg_links(array($pkg), check_suite($suite));
 
 if (empty($pkg)) {
   echo "<h3>Please enter a package name there --></h3>\n";
@@ -70,15 +70,19 @@ if (empty($pkg)) {
   printf("<h3>Build logs for <a href=\"package.php?p=%s\">%s</a>", urlencode($pkg), $pkg);
   if (!empty($ver)) {
     echo "_$ver";
-    printf(" <small>[%s]</small>", logs_link($pkg, safe_get($arch, 0), "", "X"));
+    printf(" <small>[%s]</small>", logs_link($pkg, safe_get($arch, 0), "", $suite, "X"));
   }
   if (!empty($arch)) {
     printf(" on <a href=\"architecture.php?a=%s\">%s</a>", $arch[0], $arch[0]);
-    printf(" <small>[%s]</small>", logs_link($pkg, "", $ver, "X"));
+    printf(" <small>[%s]</small>", logs_link($pkg, "", $ver, $suite, "X"));
+  }
+  if (!empty($suite)) {
+    printf(" in %s", $suite);
+    printf(" <small>[%s]</small>", logs_link($pkg, safe_get($arch, 0), $ver, "", "X"));
   }
   echo "</h3>\n";
 
-  $query = log_query($pkg, $arch, $ver);
+  $query = log_query($pkg, $arch, $ver, $suite);
   $query_result = pg_query($dbconn, $query);
   $found = false;
   $lastver = "";
@@ -109,14 +113,16 @@ if (empty($pkg)) {
     $duration = date_diff_details(0, $r["build_time"]);
     $disk_space = logsize($r["disk_space"]);
     $builder = $r["builder"];
+    $suite = $r["distribution"];
     if (empty($builder)) {
       $builder = no_empty_text("");
     } else {
-      $builder = pkg_buildd(buildd_realname($builder, $r["arch"]), "sid", $r["arch"]);
+      $builder = pkg_buildd(buildd_realname($builder, $r["arch"]), check_suite($suite), $r["arch"]);
     }
 
     $version = next_version($r["version"], $lastver, $found);
     $architecture = next_arch($r["arch"], $lastarch, $found);
+    $suite = logs_link($pkg, safe_get($arch, 0), $ver, $suite, $suite);
     printf("<tr>
             <td%s>%s</td>
             <td%s>%s</td>
@@ -127,7 +133,7 @@ if (empty($pkg)) {
             <td>%s</td>
            </tr>\n",
 	   (empty($version) ? " class=\"empty\" " : ""),
-	   $version,
+	   (empty($version) ? "" : "$version ($suite)"),
 	   (empty($architecture) ? " class=\"empty\" " : ""),
 	   $architecture,
 	   $link,

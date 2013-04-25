@@ -53,8 +53,8 @@ if (!file_exists($path)) {
 
     $links = sprintf("%s → %s → %s → %s\n",
 		     sprintf("<a href=\"package.php?p=%s\">%s</a>", urlencode($pkg), $pkg),
-		     logs_link($pkg, "", $ver, $ver),
-		     logs_link($pkg, $arch, $ver, $arch),
+		     logs_link($pkg, "", $ver, "", $ver),
+		     logs_link($pkg, $arch, $ver, "", $arch),
 		     fdate($stamp)
 		     );
     ifecho($links);
