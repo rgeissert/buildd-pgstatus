@@ -744,6 +744,12 @@ function pkg_links($packages, $suite, $p=true, $mail="") {
 		       $srcs,
 		       urlencode($suite))
 	       );
+    array_push($links,
+               sprintf("<a href=\"http://%s%s\">%s</a>",
+                       ALT_BUILDD_HOST,
+                       $_SERVER["REQUEST_URI"],
+                       ALT_BUILDD_TEXT)
+               );
   }
   echo implode(" &ndash; ", $links);
   if ($p) echo "</p>\n";
