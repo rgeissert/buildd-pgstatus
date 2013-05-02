@@ -855,14 +855,15 @@ function multi($info, $version, $log, $arch, $suite, $problemid) {
   }
 }
 
-function buildd_status_header($mode, $archs, $package, $suite) {
+function buildd_status_header($mode, $archs, $package, $suite, $full=true) {
   if ($mode == "single") {
     echo '<table class="data">
 <tr><th>Architecture</th><th>Version</th><th>Status</th><th>For</th><th>Buildd</th><th>State</th><th>Misc</th><th><a href="logs.php?pkg='.urlencode($package).'">Logs</a></th></tr>
 ';
     echo "\n";
   } else {
-    echo "<table class=\"data\"><tr><th>Package</th>";
+    if ($full) echo "<table class=\"data\">";
+    echo "<tr><th>Package</th>";
     foreach ($archs as $arch) {
       printf("<th>%s</th>", arch_link($arch, $suite));
     }
@@ -1052,8 +1053,12 @@ function buildd_status($packages, $suite, $archis=array()) {
   sort($archs);
   buildd_status_header($print, $archs, $packages[0], $suite);
 
+  $nums = 0;
   foreach ($packages as $package) {
     if (empty($package)) continue;
+
+    $nums++;
+    if ($print == "multi" && $nums % 20 == 0) buildd_status_header($print, $archs, $packages[0], $suite, false);
 
     $package = pg_escape_string($dbconn, $package);
     $result = pg_query($dbconn, string_query($package, $suite));
