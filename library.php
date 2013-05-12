@@ -1162,7 +1162,7 @@ function buildd_status($packages, $suite, $archis=array()) {
       if ($info["state"] == "Installed" && $log == "no log") $info["timestamp"] = "";
       pkg_history($package, $version, $arch, $suite);
 
-      if ($log == "no log") $log = sprintf("%s | %s", logs_link($package, $arch), "", $log);
+      if ($log == "no log") $log = sprintf("%s | %s", logs_link($package, $arch, ""), $log);
       $print($info, $version, $log, $arch, $suite, $problemid);
 
       // There is no need to repeat the same message for all selected architectures.
