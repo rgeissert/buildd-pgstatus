@@ -781,11 +781,11 @@ function arch_link($arch, $suite, $sep=false) {
 
 function single($info, $version, $log, $arch, $suite, $problemid) {
   global $statehelp;
-  $state = $info["state"];
-  if ($state == "Dep-Wait" && !empty($info["depends"]))
-    $state .= " (" . $info["depends"] . ")";
   $log_link = "";
   if (is_array($info)) {
+    $state = $info["state"];
+    if ($state == "Dep-Wait" && !empty($info["depends"]))
+      $state .= " (" . $info["depends"] . ")";
     $misc = sprintf("%s:%s", $info["section"], $info["priority"]);
     printf("<tr><td>%s</td><td>%s</td><td %s class=\"status %s\" title=\"%s\">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
            arch_link($info["architecture"], $suite),
