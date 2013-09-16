@@ -77,7 +77,7 @@ $okstate = array("Built", "Installed", "Uploaded");
 $donestate = array("Installed", "Uploaded");
 $pendingstate = array("Building", "Dep-Wait", "Needs-Build");
 $skipstates = array("overwritten-by-arch-all", "arch-all-only");
-$passtates = array("absent", "packages-arch-specific");
+$passtates = array("absent", "packages-arch-specific", "arch-not-in-arch-list", "rch-not-in-arch-list");
 
 $dbconn = FALSE;
 $compact = FALSE;
@@ -1110,8 +1110,12 @@ function buildd_status($packages, $suite, $archis=array()) {
       $key = sprintf("%s/%s", $package, $arch);
       $problemid = 0;
 
-      if (in_array($info, $passtates) && !in_array($package, $pas))
-        array_push($pas, $package);
+      if (in_array($info, $passtates)) {
+        if (!in_array($package, $pas))
+          array_push($pas, $package);
+        $print($info, "", "", $arch, $suite, "");
+        continue;
+      }
 
       $version = pkg_version($info["version"], $info["binary_nmu_version"]);
 
@@ -1158,7 +1162,7 @@ function buildd_status($packages, $suite, $archis=array()) {
       // Do not display buildds that are user logins
       if (!is_buildd($info["builder"])) $info["builder"] = "";
 
-      if ($info["state"] == "Installed" && $log == "no log") $info["timestamp"] = "";
+      if (is_array($info) && $info["state"] == "Installed" && $log == "no log") $info["timestamp"] = "";
       pkg_history($package, $version, $arch, $suite);
 
       if ($log == "no log") $log = sprintf("%s | %s", logs_link($package, $arch, ""), $log);
