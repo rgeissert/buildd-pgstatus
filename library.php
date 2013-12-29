@@ -1335,7 +1335,7 @@ function html_footer_text($raw=false) {
   echo "<div id=\"footer\">
 <small>Page generated on $date UTC<br />
 Pages written by <a href=\"http://wiki.debian.org/MehdiDogguy\">Mehdi Dogguy</a><br />
-Architecture specific issues should be sent to &lt;<a href=\"mailto:\$arch@buildd.debian.org\">\$arch@buildd.debian.org</a>&gt;</br />
+Architecture specific issues should be sent to &lt;<a href=\"mailto:\$arch@buildd.debian.org\">\$arch@buildd.debian.org</a>&gt;<br />
 Service maintained by the wanna-build team &lt;<a href=\"http://lists.debian.org/debian-wb-team/\">debian-wb-team@lists.debian.org</a>&gt;<br />
 Download code with git: <tt>git clone http://buildd.debian.org/git/pgstatus.git</tt></small><br />
 <span class=\"tiny\">
