@@ -706,6 +706,15 @@ function grep_maintainers($mail, $comaint) {
   return array_unique($packages);
 }
 
+function pkg_link($package, $suite, $text="") {
+  if (empty($text))
+    $text = $package;
+  return sprintf('<a href="package.php?p=%s&amp;suite=%s">%s</a>',
+		 urlencode($package),
+		 $suite,
+		 $text);
+}
+
 function pkg_links($packages, $suite, $p=true, $mail="") {
   $suite = strip_suite($suite);
   $links = array();
@@ -779,13 +788,45 @@ function arch_link($arch, $suite, $sep=false) {
   return some_link($arch, $suite, arch_name($arch), $sep);
 }
 
+function clickable_depwait($text, $suite) {
+  include(sprintf("%s/etc/binsrc_assoc.php", BUILDD_DIR));
+
+  $result = array();
+  foreach(explode(" ", $text) as $string) {
+    if (array_key_exists($string, $binsrc_assoc))
+      $string = pkg_link($binsrc_assoc[$string], $suite, $string);
+    array_push($result, $string);
+  }
+  return implode(" ", $result);
+}
+
+function clickable_edos($output, $suite) {
+  include(sprintf("%s/etc/binsrc_assoc.php", BUILDD_DIR));
+
+  $lines = explode(PHP_EOL, $output);
+  $result = array();
+  foreach($lines as $line) {
+    $strings = explode(" ", $line);
+    if (in_array($strings[count($strings) -1], array("on:", "missing:"))) {
+      if (array_key_exists($strings[0], $binsrc_assoc))
+	$strings[0] = pkg_link($binsrc_assoc[$strings[0]], $suite, $strings[0]);
+      else
+	$strings[0] = pkg_link($strings[0], $suite, $strings[0]);
+    }
+    else if ($strings[0] == "-" && array_key_exists($strings[1], $binsrc_assoc))
+      $strings[1] = pkg_link($binsrc_assoc[$strings[1]], $suite, $strings[1]);
+    array_push($result, implode(" ", $strings));
+  }
+  return implode("\n", $result);
+}
+
 function single($info, $version, $log, $arch, $suite, $problemid) {
   global $statehelp;
   $log_link = "";
   if (is_array($info)) {
     $state = $info["state"];
     if ($state == "Dep-Wait" && !empty($info["depends"]))
-      $state .= " (" . $info["depends"] . ")";
+      $state .= " (" . clickable_depwait($info["depends"], $suite) . ")";
     $misc = sprintf("%s:%s", $info["section"], $info["priority"]);
     printf("<tr><td>%s</td><td>%s</td><td %s class=\"status %s\" title=\"%s\">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
            arch_link($info["architecture"], $suite),
@@ -983,6 +1024,8 @@ function buildd_failures($problems, $pas, $suite) {
           $archs = make_list($archs_data);
         }
 	$message = detect_links(htmlentities($message));
+	if ($reason == "dependency installability problem")
+	  $message = clickable_edos($message, $suite);
 	printf("<h3 id=\"problem-%d\">%s for <a href=\"package.php?p=%s&amp;suite=%s\">%s</a> on %s:</h3>\n<pre class=\"failure\">%s%s</pre>\n",
                $problemid,
                ucfirst($reason),
