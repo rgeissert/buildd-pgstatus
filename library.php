@@ -800,20 +800,26 @@ function clickable_depwait($text, $suite) {
   return implode(" ", $result);
 }
 
-function clickable_edos($output, $suite) {
+function clickable_edos($output, $suite, $current_package) {
   include(sprintf("%s/etc/binsrc_assoc.php", BUILDD_DIR));
 
   $lines = explode(PHP_EOL, $output);
   $result = array();
   foreach($lines as $line) {
     $strings = explode(" ", $line);
-    if (in_array($strings[count($strings) -1], array("on:", "missing:"))) {
-      if (array_key_exists($strings[0], $binsrc_assoc))
-	$strings[0] = pkg_link($binsrc_assoc[$strings[0]], $suite, $strings[0]);
-      else
+    if (in_array($strings[count($strings) -1], array("on:", "missing:"))
+        && $strings[0] != $current_package
+       ) {
+      if (array_key_exists($strings[0], $binsrc_assoc)) {
+        if ($binsrc_assoc[$strings[0]] != $current_package)
+          $strings[0] = pkg_link($binsrc_assoc[$strings[0]], $suite, $strings[0]);
+      } else
 	$strings[0] = pkg_link($strings[0], $suite, $strings[0]);
     }
-    else if ($strings[0] == "-" && array_key_exists($strings[1], $binsrc_assoc))
+    else if ($strings[0] == "-"
+	     && $strings[1] != $current_package
+	     && array_key_exists($strings[1], $binsrc_assoc)
+	     && $binsrc_assoc[$strings[1]] != $current_package)
       $strings[1] = pkg_link($binsrc_assoc[$strings[1]], $suite, $strings[1]);
     array_push($result, implode(" ", $strings));
   }
@@ -1025,7 +1031,7 @@ function buildd_failures($problems, $pas, $suite) {
         }
 	$message = detect_links(htmlentities($message));
 	if ($reason == "dependency installability problem")
-	  $message = clickable_edos($message, $suite);
+	  $message = clickable_edos($message, $suite, $package);
 	printf("<h3 id=\"problem-%d\">%s for <a href=\"package.php?p=%s&amp;suite=%s\">%s</a> on %s:</h3>\n<pre class=\"failure\">%s%s</pre>\n",
                $problemid,
                ucfirst($reason),
