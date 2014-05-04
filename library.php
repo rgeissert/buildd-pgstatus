@@ -26,6 +26,8 @@ define("BUILDD_TEXT", "buildd.d.o");
 define("ALT_BUILDD_HOST", "buildd.debian-ports.org");
 define("ALT_BUILDD_TEXT", "b.d-ports.o");
 
+include(sprintf("%s/etc/binsrc_assoc.php", BUILDD_DIR));
+
 $ARCHS = array("amd64"); // Will be fixed later (when pg connection is established)
 $SUITES = array("sid"); // Will be fixed later (when pg connection is established)
 $ALIASES = array();
@@ -789,8 +791,6 @@ function arch_link($arch, $suite, $sep=false) {
 }
 
 function clickable_depwait($text, $suite) {
-  include(sprintf("%s/etc/binsrc_assoc.php", BUILDD_DIR));
-
   $result = array();
   foreach(explode(" ", $text) as $string) {
     if (array_key_exists($string, $binsrc_assoc))
@@ -801,8 +801,6 @@ function clickable_depwait($text, $suite) {
 }
 
 function clickable_edos($output, $suite, $current_package) {
-  include(sprintf("%s/etc/binsrc_assoc.php", BUILDD_DIR));
-
   $lines = explode(PHP_EOL, $output);
   $result = array();
   foreach($lines as $line) {
