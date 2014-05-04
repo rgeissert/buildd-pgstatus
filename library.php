@@ -791,6 +791,8 @@ function arch_link($arch, $suite, $sep=false) {
 }
 
 function clickable_depwait($text, $suite) {
+  global $binsrc_assoc;
+
   $result = array();
   foreach(explode(" ", $text) as $string) {
     if (array_key_exists($string, $binsrc_assoc))
@@ -801,6 +803,8 @@ function clickable_depwait($text, $suite) {
 }
 
 function clickable_edos($output, $suite, $current_package) {
+  global $binsrc_assoc;
+
   $lines = explode(PHP_EOL, $output);
   $result = array();
   foreach($lines as $line) {
