@@ -790,16 +790,32 @@ function arch_link($arch, $suite, $sep=false) {
   return some_link($arch, $suite, arch_name($arch), $sep);
 }
 
+function split_string($text, $sep) {
+  $final = array();
+  $tmp = "";
+  for($i=0; $i<strlen($text); $i++) {
+    if (in_array($text[$i], $sep)) {
+      if (!empty($tmp)) array_push($final, $tmp);
+      $tmp = "";
+      array_push($final, $text[$i]);
+    } else {
+      $tmp = $tmp . $text[$i];
+    }
+  }
+  if (!empty($tmp)) array_push($final, $tmp);
+  return $final;
+}
+
 function clickable_depwait($text, $suite) {
   global $binsrc_assoc;
 
   $result = array();
-  foreach(explode(" ", $text) as $string) {
+  foreach(split_string($text, array(' ', ',')) as $string) {
     if (array_key_exists($string, $binsrc_assoc))
       $string = pkg_link($binsrc_assoc[$string], $suite, $string);
     array_push($result, $string);
   }
-  return implode(" ", $result);
+  return implode("", $result);
 }
 
 function clickable_edos($output, $suite, $current_package) {
