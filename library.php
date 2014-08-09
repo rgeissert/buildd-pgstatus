@@ -21,8 +21,10 @@
 
 define("BUILDD_DIR", "/srv/buildd.debian.org");
 define("DEBIAN", "Debian");
+define("BUILDD_SCHEME", "https");
 define("BUILDD_HOST", "buildd.debian.org");
 define("BUILDD_TEXT", "buildd.d.o");
+define("ALT_BUILDD_SCHEME", "http");
 define("ALT_BUILDD_HOST", "buildd.debian-ports.org");
 define("ALT_BUILDD_TEXT", "b.d-ports.o");
 
@@ -727,12 +729,13 @@ function pkg_links($packages, $suite, $p=true, $mail="") {
     preg_match("/^(?P<all>(?P<prefix>(?:(?:lib)?[[:alnum:]])).*)$/", $package, $pkg);
     $links =
       array(
-            sprintf("<a href=\"http://packages.qa.debian.org/%s\">PTS</a>", urlencode($package)),
-            sprintf("<a href=\"http://packages.debian.org/changelog:%s\">Changelog</a>", urlencode($package)),
-            sprintf("<a href=\"http://bugs.debian.org/src:%s\">Bugs</a>", urlencode($package)),
-            sprintf("<a href=\"http://packages.debian.org/source/%s/%s\">packages.d.o</a>",
+            sprintf("<a href=\"https://packages.qa.debian.org/%s\">PTS</a>", urlencode($package)),
+            sprintf("<a href=\"https://packages.debian.org/changelog:%s\">Changelog</a>", urlencode($package)),
+            sprintf("<a href=\"https://bugs.debian.org/src:%s\">Bugs</a>", urlencode($package)),
+            sprintf("<a href=\"https://packages.debian.org/source/%s/%s\">packages.d.o</a>",
                     urlencode($suite), urlencode($package)),
-	    sprintf("<a href=\"http://%s/status/package.php?p=%s&amp;suite=%s\">%s</a>",
+	    sprintf("<a href=\"%s://%s/status/package.php?p=%s&amp;suite=%s\">%s</a>",
+		    ALT_BUILDD_SCHEME,
 		    ALT_BUILDD_HOST,
 		    urlencode($package),
 		    urlencode($suite),
@@ -744,18 +747,19 @@ function pkg_links($packages, $suite, $p=true, $mail="") {
     $srcs = implode(";src=", $packages);
     if (!empty($mail))
       array_push($links,
-		 sprintf("<a href=\"http://qa.debian.org/developer.php?login=%s\">DDPO</a> (%s)",
+		 sprintf("<a href=\"https://qa.debian.org/developer.php?login=%s\">DDPO</a> (%s)",
 			 urlencode($mail),
 			 htmlentities($mail)
 			 )
 		 );
     array_push($links,
-	       sprintf("<a href=\"http://bugs.debian.org/cgi-bin/pkgreport.cgi?src=%s;dist=%s\">Bugs</a>",
+	       sprintf("<a href=\"https://bugs.debian.org/cgi-bin/pkgreport.cgi?src=%s;dist=%s\">Bugs</a>",
 		       $srcs,
 		       urlencode($suite))
 	       );
     array_push($links,
-               sprintf("<a href=\"http://%s%s\">%s</a>",
+               sprintf("<a href=\"%s://%s%s\">%s</a>",
+                       ALT_BUILDD_SCHEME,
                        ALT_BUILDD_HOST,
                        $_SERVER["REQUEST_URI"],
                        ALT_BUILDD_TEXT)
@@ -944,7 +948,7 @@ function detect_links($message) {
                           '<a href="\1">\1</a>',
                           $message);
   $message = preg_replace('/(#([0-9]{3,6}))/',
-                          '<a href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=\2">\1</a>',
+                          '<a href="https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=\2">\1</a>',
                           $message);
   return $message;
 }
@@ -1385,7 +1389,7 @@ $(document).ready(function () {
 ";
 
   echo "\n</head>\n<body>\n";
-  printf ("<h1 id=\"title\"><a href=\"http://%s\">%s Package Auto-Building</a></h1>\n", BUILDD_HOST, DEBIAN);
+  printf ("<h1 id=\"title\"><a href=\"%s://%s\">%s Package Auto-Building</a></h1>\n", BUILDD_SCHEME, BUILDD_HOST, DEBIAN);
   echo "<h2 id=\"subtitle\">$subtitle</h2>\n";
 }
 
@@ -1401,10 +1405,10 @@ function html_footer_text($raw=false) {
   $date = fdate($time);
   echo "<div id=\"footer\">
 <small>Page generated on $date UTC<br />
-Pages written by <a href=\"http://wiki.debian.org/MehdiDogguy\">Mehdi Dogguy</a><br />
+Pages written by <a href=\"https://wiki.debian.org/MehdiDogguy\">Mehdi Dogguy</a><br />
 Architecture specific issues should be sent to &lt;<a href=\"mailto:\$arch@buildd.debian.org\">\$arch@buildd.debian.org</a>&gt;<br />
-Service maintained by the wanna-build team &lt;<a href=\"http://lists.debian.org/debian-wb-team/\">debian-wb-team@lists.debian.org</a>&gt;<br />
-Download code with git: <tt>git clone http://buildd.debian.org/git/pgstatus.git</tt></small><br />
+Service maintained by the wanna-build team &lt;<a href=\"https://lists.debian.org/debian-wb-team/\">debian-wb-team@lists.debian.org</a>&gt;<br />
+Download code with git: <tt>git clone https://buildd.debian.org/git/pgstatus.git</tt></small><br />
 <span class=\"tiny\">
 <a href=\"http://validator.w3.org/check?uri=".request_uri()."\">Valid XHTML</a>&nbsp;
 <a href=\"http://jigsaw.w3.org/css-validator/validator?uri=".request_uri()."\">Valid CSS</a>
