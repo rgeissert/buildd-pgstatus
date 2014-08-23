@@ -254,7 +254,7 @@ function safe_char($string, $pos, $default='') {
 }
 
 function sanitize_params() {
-  global $dbconn, $ARCHS;
+  global $dbconn, $ARCHS, $statehelp;
   $result = array();
   foreach(func_get_args() as $key => $param) {
     switch($param) {
@@ -351,6 +351,14 @@ function sanitize_params() {
     case "raw":
       array_push($result, array_key_exists("raw", $_GET));
       break;
+    case "state":
+      $tmp = ucwords(safe_get($_GET, $param));
+      if (in_array($tmp, array_keys($statehelp))) {
+        array_push($result, $tmp);
+      } else {
+        array_push($result, array_keys($statehelp)[0]);
+      }
+      break;
     }
   }
   return $result;
@@ -426,6 +434,19 @@ function select_suite($packages, $selected_suite, $archs="", $comaint="no") {
          );
   echo "</span>\n";
   printf("</p>\n</form>\n");
+}
+
+function select_state($current_state) {
+  global $statehelp;
+  printf("<select name=\"state\" id=\"state\">\n");
+  printf("\t<option value=\"all\">all</option>\n");
+  foreach($statehelp as $state => $help) {
+    $selected = "";
+    if ($state == $current_state) $selected = ' selected="selected"';
+    printf("\t<option value=\"%s\"%s>%s</option>\n", $state, $selected, $state);
+  }
+  printf("</select>\n");
+
 }
 
 function date_diff_details($time, $lastchange) {
