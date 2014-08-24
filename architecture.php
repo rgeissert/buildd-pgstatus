@@ -28,35 +28,41 @@ function pkg_name($pkg) {
 
 list($packages, $suite, $buildd, $notes) =
   sanitize_params("packages", "suite", "buildd", "notes");
-$arch = check_arch(safe_get($_GET, "a"), $suite);
+
+$default_suite = "sid";
+if ($suite != "all") $default_suite = $suite;
+
+$arch = check_arch(safe_get($_GET, "a"), $default_suite);
 
 html_header("Buildd status of $arch ($suite)");
 
 echo "<div id=\"body\">\n";
 
 echo "<div style=\"text-align: right\">";
-select_suite($packages, $suite);
+select_suite($packages, $default_suite);
 echo "</div><br />";
 
 alert_if_neq("architecture", $arch, htmlspecialchars(safe_get($_GET, "a")));
 
 archs_overview_links($suite, $arch);
-
-buildds_overview_link($arch, $suite, $buildd);
-
-notes_overview_link($arch, $suite, $notes);
-
-buildds_machine_info($arch, $suite, $buildd);
+if ($suite != "all") {
+  buildds_overview_link($arch, $suite, $buildd);
+  buildds_machine_info($arch, $suite, $buildd);
+  notes_overview_link($arch, $suite, $notes);
+}
 
 echo "<p>The time indicates for how long a package is in the given state.</p>";
 
 $query =
   "select package, version, state, state_change, section, builder, binary_nmu_version from \""
-  .$arch."_public\".packages where distribution = '$suite'";
-if (!empty($buildd)) $query .= " and builder = '$buildd'";
-if (!empty($notes)) $query .= " and notes = '$notes'";
+  .$arch."_public\".packages";
+$query_ext = array();
+if ($suite != "all") $query_ext[] = "distribution = '$suite'";
+if (!empty($buildd)) $query_ext[] = "builder = '$buildd'";
+if (!empty($notes)) $query_ext[] = "notes = '$notes'";
+if (!empty($query_ext)) $query .= " WHERE " . implode(" AND ", $query_ext);
 
-$query .= " order by state_change asc";
+$query .= " ORDER BY state_change ASC";
 
 $final = array();
 $finalp = array();
@@ -74,7 +80,7 @@ while ($info = pg_fetch_assoc($results)) {
   if ($counts[$state] < $limit) {
     $text = "";
     if (($counts[$state] - 1) % 10 == 0) $text .= "<span class=\"green\">${counts[$state]}</span>: ";
-    list($count, $logs) = pkg_history($info["package"], $info["version"], $arch, $suite);
+    list($count, $logs) = pkg_history($info["package"], $info["version"], $arch, $default_suite);
     if ($count >= 1) {
       $timestamp = $logs[0]["timestamp"];
       $lastchange = strtotime($info["state_change"]);
@@ -100,7 +106,7 @@ while ($info = pg_fetch_assoc($results)) {
 	  elseif ($days > 7)
 	    $duration = "<span class=\"orange\">$duration</span>";
       }
-      $link = sprintf("<a href=\"package.php?p=%s&amp;suite=%s\">%s</a>", urlencode($info["package"]), $suite, htmlentities($info["package"]));
+      $link = sprintf("<a href=\"package.php?p=%s&amp;suite=%s\">%s</a>", urlencode($info["package"]), $default_suite, htmlentities($info["package"]));
       $text .= sprintf("%s (%s%s", $link, $binnmu, $duration);
       if ($count > 1 && $state != "BD-Uninstallable") $text .= ", <strong>tried $count times</strong>";
       $text .= default_area($info["section"]);
@@ -129,7 +135,7 @@ if (!empty($final)) {
     if (count($finalp[$state]) > 0) {
       $packages = array_map("urlencode", $finalp[$state]);
       $packages = implode(",", $packages);
-      $link = sprintf("<a href=\"package.php?p=%s&amp;suite=%s\">%s</a>", $packages, $suite, htmlentities($state));
+      $link = sprintf("<a href=\"package.php?p=%s&amp;suite=%s\">%s</a>", $packages, $default_suite, htmlentities($state));
     }
     echo "<td valign=\"top\">$link</td>";
     echo "<td valign=\"top\" align=\"center\">$count</td>";

@@ -310,9 +310,12 @@ function sanitize_params() {
     case "suite":
       $key = "suite";
       if (!array_key_exists($key, $_GET) || empty($_GET[$key])) $key = "dist";
-      if (array_key_exists($key, $_GET))
-        array_push($result, check_suite($_GET[$key]));
-      else
+      if (array_key_exists($key, $_GET)) {
+        if ($_GET[$key] == "all")
+          array_push($result, "all");
+        else
+          array_push($result, check_suite($_GET[$key]));
+      } else
         array_push($result, check_suite(""));
       break;
     case "dist":
@@ -1280,7 +1283,9 @@ function archs_overview_links($current_suite, $current_arch="", $show_dists=true
   global $ARCHS, $SUITES;
   if ($show_dists) {
     echo "Distributions: ";
-    foreach($SUITES as $suite) {
+    $suites = $SUITES;
+    array_unshift($suites, "all");
+    foreach($suites as $suite) {
       if ($suite == $current_suite)
 	echo " <strong>[$suite]</strong> ";
       else
