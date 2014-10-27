@@ -754,6 +754,7 @@ function pkg_links($packages, $suite, $p=true, $mail="") {
     $links =
       array(
             sprintf("<a href=\"https://packages.qa.debian.org/%s\">PTS</a>", urlencode($package)),
+            sprintf("<a href=\"https://tracker.debian.org/%s\">Tracker</a>", urlencode($package)),
             sprintf("<a href=\"https://packages.debian.org/changelog:%s\">Changelog</a>", urlencode($package)),
             sprintf("<a href=\"https://bugs.debian.org/src:%s\">Bugs</a>", urlencode($package)),
             sprintf("<a href=\"https://packages.debian.org/source/%s/%s\">packages.d.o</a>",
