@@ -743,6 +743,26 @@ function pkg_link($package, $suite, $text="") {
 		 $text);
 }
 
+function changelog_link($package, $suite) {
+  global $dbconn;
+  $format = "SELECT DISTINCT(version) FROM public.packages_all
+      WHERE distribution = '%s'
+        AND package = '%s'
+      ORDER BY version DESC";
+  $query = sprintf($format, $suite, $package);
+  $result = pg_query($dbconn, $query);
+  $filename = "unstable_changelog";
+  $version = pg_fetch_row($result, 0)[0];
+  if (!empty($version)) $filename = sprintf("%s_%s_changelog", urlencode($package), urlencode($version));
+  preg_match("/^(?P<all>(?P<prefix>(?:(?:lib)?[[:alnum:]])).*)$/", $package, $pkg);
+  return sprintf("<a href=\"https://metadata.ftp-master.debian.org/changelogs/%s/%s/%s/%s\">Changelog</a>",
+                 pkg_area($package),
+                 urlencode($pkg["prefix"]),
+                 urlencode($package),
+                 $filename
+                );
+}
+
 function pkg_links($packages, $suite, $p=true, $mail="") {
   $suite = strip_suite($suite);
   $links = array();
@@ -750,12 +770,11 @@ function pkg_links($packages, $suite, $p=true, $mail="") {
   if (count($packages) == 1) {
     $package = $packages[0];
     if (empty($package)) return;
-    preg_match("/^(?P<all>(?P<prefix>(?:(?:lib)?[[:alnum:]])).*)$/", $package, $pkg);
     $links =
       array(
             sprintf("<a href=\"https://packages.qa.debian.org/%s\">PTS</a>", urlencode($package)),
             sprintf("<a href=\"https://tracker.debian.org/%s\">Tracker</a>", urlencode($package)),
-            sprintf("<a href=\"https://packages.debian.org/changelog:%s\">Changelog</a>", urlencode($package)),
+            changelog_link($package, $suite),
             sprintf("<a href=\"https://bugs.debian.org/src:%s\">Bugs</a>", urlencode($package)),
             sprintf("<a href=\"https://packages.debian.org/source/%s/%s\">packages.d.o</a>",
                     urlencode($suite), urlencode($package)),
