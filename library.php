@@ -755,7 +755,7 @@ function changelog_link($package, $suite) {
   $version = pg_fetch_row($result, 0)[0];
   if (!empty($version)) $filename = sprintf("%s_%s_changelog", urlencode($package), urlencode($version));
   preg_match("/^(?P<all>(?P<prefix>(?:(?:lib)?[[:alnum:]])).*)$/", $package, $pkg);
-  return sprintf("<a href=\"https://metadata.ftp-master.debian.org/changelogs/%s/%s/%s/%s\">Changelog</a>",
+  return sprintf("<a href=\"http://metadata.ftp-master.debian.org/changelogs/%s/%s/%s/%s\">Changelog</a>",
                  pkg_area($package),
                  urlencode($pkg["prefix"]),
                  urlencode($package),
